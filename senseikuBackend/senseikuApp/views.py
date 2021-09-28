@@ -9,88 +9,60 @@ from django.contrib.auth import authenticate, login
 
 import json
 
+
+
+@csrf_exempt
 def loginTutor(request):
     data=json.loads(request.body.decode('utf-8'))
-    loginDIct={
+    loginDict={
         "username":data['username'],
         "password":data['password']
     }
-    userExist = Tutor.objects.filter(username=loginDIct['username'],password=loginDIct['password']).exists()
+    userExist = Tutor.objects.filter(username=loginDict['username'],password=loginDict['password']).exists()
     if userExist:
-        return JsonResponse(loginDIct)
+        return JsonResponse(loginDict, status=200)
     else:
-        return HttpResponse('<H1>fail!</H1>', status=404)
+        return JsonResponse(loginDict, status=404)
 
 def loginStudent(request):
     data=json.loads(request.body.decode('utf-8'))
-    loginDIct={
+    loginDict={
         "username":data['username'],
         "password":data['password']
     }
-    userExist = Student.objects.filter(username=loginDIct['username'],password=loginDIct['password']).exists()
+    userExist = Student.objects.filter(username=loginDict['username'],password=loginDict['password']).exists()
     if userExist:
-        return JsonResponse(loginDIct)
+        return JsonResponse(loginDict, status=200)
     else:
-        return HttpResponse('<H1>fail!</H1>', status=404)
+        return JsonResponse(loginDict, status=404)
 
 def signupTutor(request):
     data=json.loads(request.body.decode('utf-8'))
-    loginDIct={
+    loginDict={
         "username":data['username'],
         "name":data['username'],
         "password":data['password']
     }
     try:
-        Tutor.objects.create(username=loginDIct['username'],password=loginDIct['password'])
-        return JsonResponse(loginDIct)
+        Tutor.objects.create(username=loginDict['username'],password=loginDict['password'])
+        return JsonResponse(loginDict)
     except IntegrityError:
-        return HttpResponse('<H1>fail!</H1>', status=404)
+        return JsonResponse(loginDict, status=404)
 
 def signupStudent(request):
     data=json.loads(request.body.decode('utf-8'))
-    loginDIct={
+    loginDict={
         "username":data['username'],
         "name":data['username'],
         "password":data['password']
     }
     try:
-        Student.objects.create(username=loginDIct['username'],password=loginDIct['password'])
-        return JsonResponse(loginDIct)
+        Student.objects.create(username=loginDict['username'],password=loginDict['password'])
+        return JsonResponse(loginDict)
     except IntegrityError:
-        return HttpResponse('<H1>fail!</H1>', status=404)
+        return JsonResponse(loginDict, status=404)
 
-@csrf_exempt
+
 def getNewCourse(request):
-    """
-    BAWAH INI SISA KODINGAN PROG WEB
-
-    data = json.loads(request.body.decode('utf-8'))
-    output_dictionary={
-        "id":data['id'],
-        "username":data['username']
-     }
-    hitung_true=0
-    for i in range(1,6): #1 sampai 5
-        s="q"+str(i) #q1, q2, ...
-        cur=get_list_or_404(Questions,quiz_id=data['id'])
-        for j in cur:
-            if int(j.id) % 5 == int(i) % 5: #question.id: 1,2,3,4,5,6,7
-                if(data[s]==j.corrans):
-                    output_dictionary.update({s:"true"})
-                    hitung_true+=1
-                else:
-                    output_dictionary.update({s:"false"})
+    return HttpResponse("dummy")
     
-    output_dictionary.update({"score":hitung_true * 20})
-    
-    #MASUKIN KE DATABASE
-    try:
-        add_database=Answer.objects.create(username=data['username'],quiz_id=data['id'],score=output_dictionary['score'])
-    except IntegrityError: #jika ada duplicate
-        add_database=Answer.objects.update(username=data['username'],quiz_id=data['id'],score=output_dictionary['score'])
-
-    ###
-
-    
-    return JsonResponse(output_dictionary)
-    """
