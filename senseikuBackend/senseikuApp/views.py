@@ -24,6 +24,7 @@ def loginTutor(request):
         return JsonResponse(loginDict, status=200)
     else:
         return JsonResponse(loginDict, status=404)
+
 @csrf_exempt
 def loginStudent(request):
     data=json.loads(request.body.decode('utf-8'))
@@ -36,6 +37,7 @@ def loginStudent(request):
         return JsonResponse(loginDict, status=200)
     else:
         return JsonResponse(loginDict, status=404)
+
 @csrf_exempt
 def signupTutor(request):
     data=json.loads(request.body.decode('utf-8'))
@@ -49,6 +51,7 @@ def signupTutor(request):
         return JsonResponse(loginDict)
     except IntegrityError:
         return JsonResponse(loginDict, status=404)
+
 @csrf_exempt
 def signupStudent(request):
     data=json.loads(request.body.decode('utf-8'))
@@ -68,3 +71,49 @@ def getNewCourse(request):
     courseList=get_list_or_404(Course)
     courseData=serializers.serialize('json', courseList, fields=('id','course_name','description','pricing','tutor_id'))
     return HttpResponse(courseData)
+
+csrf_exempt
+def addCourse(request):
+    data=json.loads(request.body.decode('utf-8'))
+    courseDict={
+        "id":data['id'],
+        "course_name":data['nama'],
+        "description":data['deskripsi'],
+        "pricing":data['harga'],
+        "tutor_id":data['tutor_id']
+    }
+    try:
+        Course.objects.create(
+            id=courseDict['id'],
+            course_name=courseDict['course_name'],
+            description=courseDict['description'],
+            pricing=courseDict['pricing'],
+            tutor_id_id=courseDict['tutor_id']
+        )
+        return JsonResponse(courseDict)
+    except IntegrityError:
+        return JsonResponse(courseDict, status=404)
+'''
+mohon maaf pak, saya masih mengalami integrityError
+
+
+csrf_exempt
+def updateCourse(request):
+    data=json.loads(request.body.decode('utf-8'))
+    courseDict={
+        "id":data['id'],
+        "course_name":data['nama'],
+        "description":data['deskripsi'],
+        "pricing":data['harga'],
+        "tutor_id":data['tutor_id']
+    }
+    
+    Course.objects.update_or_create(
+        id=courseDict['id'],
+        course_name=courseDict['course_name'],
+        description=courseDict['description'],
+        pricing=courseDict['pricing'],
+        tutor_id_id=courseDict['tutor_id']
+    )
+    return JsonResponse(courseDict)
+'''
