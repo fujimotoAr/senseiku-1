@@ -1,0 +1,76 @@
+1. login/signup
+    a. sensei:
+        path: /loginSensei
+        method: POST
+        body: { "username": string, 
+        "password": string
+          }
+    b. student
+        path: /loginStudent
+        method: POST
+        body: { "username": string, 
+        "password": string
+          }
+2. dashboardStudent
+    path: /studentProfile/{username}
+    method: GET
+    response body : {
+        "username": string, 
+        "password": string
+    }
+3. dashboardSensei
+    path: /senseiProfile/{username}
+    method: GET
+    response body : {
+        "username": string, 
+        "password": string
+    }
+4. getNewCourse -> home
+    path: /newCourse
+    method: GET
+    response body : {
+        course: [
+            { "id": integer/string,
+            "nama": string, 
+            "deskripsi": string,
+            "harga": float,
+            "sensei": string
+            },
+            { "id": integer/string,
+            "nama": string, 
+            "deskripsi": string,
+            "harga": float,
+            "sensei": string
+            }
+        ]
+    }
+5. getMyCourse -> dashboard sensei
+    path: /myCourse/{username}
+    method: GET
+    response body (?): {
+        course: [
+            { "id": integer/string,
+            "nama": string, 
+            "deskripsi": string,
+            "harga": float
+            },
+            { "id": integer/string,
+            "nama": string, 
+            "deskripsi": string,
+            "harga": float
+            }
+        ]
+    }
+6. addProduct -> dashboard sensei
+    path: /addProduct
+    method: POST
+    body: { "nama": string, 
+        "deskripsi": string,
+        "harga": float
+    }
+7. deleteProduct -> dashboard sensei
+    path: /deleteProduct/{productId}
+    method: DELETE
+
+student -> home 
+sensei -> dashboard sensei
