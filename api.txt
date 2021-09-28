@@ -11,14 +11,14 @@
         body: { "username": string, 
         "password": string
           }
-2. dashboardStudent
+2. profileStudent
     path: /studentProfile/{username}
     method: GET
     response body : {
         "username": string, 
         "password": string
     }
-3. dashboardSensei
+3. profileSensei
     path: /senseiProfile/{username}
     method: GET
     response body : {
