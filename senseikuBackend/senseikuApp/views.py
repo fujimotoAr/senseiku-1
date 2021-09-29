@@ -1,6 +1,7 @@
 from json.decoder import JSONDecodeError
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from .models import Course
+from .viewsProduct import getNewCourse,addCourse
 from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
