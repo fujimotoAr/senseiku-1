@@ -9,7 +9,8 @@ urlpatterns = [
     path('signupStudent/',views.signupStudent, name='signupStudent'),
     path('newCourse/',views.getNewCourse, name='getNewCourse'),
     path('addCourse/',views.addCourse, name='addCourse'),
-    path('updateCourse/',views.updateCourse, name='updateCourse')
+    #path('updateCourse/',views.updateCourse, name='updateCourse')
+
 
 
 ]
