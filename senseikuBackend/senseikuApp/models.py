@@ -4,7 +4,6 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 
 
-
 class Course(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
     course_name = models.CharField(max_length=100)
