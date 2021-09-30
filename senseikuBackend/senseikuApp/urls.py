@@ -11,7 +11,4 @@ urlpatterns = [
     path('signupStudent/',views.signupStudent, name='signupStudent'),
     path('newCourse/',viewsProduct.getNewCourse, name='getNewCourse'),
     path('addCourse/',viewsProduct.addCourse, name='addCourse'),
-
-
-
 ]

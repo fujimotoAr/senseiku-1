@@ -1,8 +1,10 @@
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
+# tutor = Group.objects.create(name='tutor')
+# student = Group.objects.create(name='student')
 
 class Course(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
@@ -10,5 +12,3 @@ class Course(models.Model):
     description = models.CharField(max_length=1000)
     pricing = models.IntegerField()
     tutor_id = models.ForeignKey(User,on_delete=models.CASCADE)
-
-    
