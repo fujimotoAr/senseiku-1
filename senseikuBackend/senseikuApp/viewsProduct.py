@@ -22,7 +22,6 @@ def addCourse(request):
         "description":data['deskripsi'],
         "pricing":data['harga'],
         "tutor_id":data['tutor_id'],
-        "message":"Add course berhasil"
     }
     try:
         Course.objects.create(
@@ -33,9 +32,6 @@ def addCourse(request):
         )
         return JsonResponse(courseDict)
     except IntegrityError:
-        courseDict.update({
-            "message":"Add course gagal"
-        })
         return JsonResponse(courseDict, status=404)
 
 csrf_exempt
@@ -46,7 +42,7 @@ def addSchedule(request):
         "course_id":data['course_id'],
         "day":data['day'],
         "hour":data['hour'],
-        "message":"Add schedule berhasil"
+        "message":""
     }
     try:
         Schedule.objects.create(
@@ -56,7 +52,4 @@ def addSchedule(request):
         )
         return JsonResponse(scheduleDict)
     except IntegrityError:
-        scheduleDict.update({
-            "message":"Add schedule gagal"
-        })
         return JsonResponse(scheduleDict, status=404)
