@@ -12,3 +12,16 @@ class Course(models.Model):
     tutor_id = models.ForeignKey(User,on_delete=models.CASCADE)
 
     
+class Schedule(models.Model):
+    id = models.AutoField(primary_key=True,unique=True)
+    course_id = models.ForeignKey(Course,on_delete=models.CASCADE)
+    day = models.CharField(max_length=100)
+    hour = models.TimeField()
+
+class Review(models.Model):
+    id = models.AutoField(primary_key=True,unique=True)
+    course_id = models.ForeignKey(Course,on_delete=models.CASCADE)
+    student_id = models.ForeignKey(User,on_delete=models.CASCADE)
+    review = models.CharField(max_length=1000)
+    rating = models.FloatField(default=0.0)
+
