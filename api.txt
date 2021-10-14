@@ -1,12 +1,12 @@
 1. login/signup
     a. sensei:
-        path: /loginSensei
+        path: /loginTutor /signupTutor
         method: POST
         body: { "username": string, 
         "password": string
           }
     b. student
-        path: /loginStudent
+        path: /loginStudent /signupStudent
         method: POST
         body: { "username": string, 
         "password": string
