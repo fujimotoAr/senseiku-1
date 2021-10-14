@@ -9,6 +9,13 @@ urlpatterns = [
     path('loginStudent/', views.loginStudent, name='loginStudent'),
     path('signupTutor/',views.signupTutor, name='signupTutor'),
     path('signupStudent/',views.signupStudent, name='signupStudent'),
-    path('newCourse/',viewsProduct.getNewCourse, name='getNewCourse'),
+
+    path('getNewCourse/',viewsProduct.getNewCourse, name='getNewCourse'),
+    path('getAllCourse/',viewsProduct.getAllCourse, name='getAllCourse'),
+
     path('addCourse/',viewsProduct.addCourse, name='addCourse'),
+    path('deleteCourse/',viewsProduct.deleteCourse, name='deleteCourse'),
+    path('addSchedule/',viewsProduct.addSchedule, name='addSchedule'),
+    path('deleteSchedule/',viewsProduct.deleteSchedule, name='deleteSchedule'),
+
 ]
