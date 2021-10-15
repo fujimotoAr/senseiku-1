@@ -11,7 +11,7 @@ import json
 @csrf_exempt
 def getNewCourse(request):
     courseList=Course.objects.all().order_by('-id')[:5]
-    courseData=serializers.serialize('json', courseList, fields=('id','course_name','description','pricing','tutor_id'))
+    courseData=serializers.serialize('json', courseList, fields=('id','course_name','description','pricing','tutor_username'))
     return HttpResponse(courseData)
 
 @csrf_exempt
