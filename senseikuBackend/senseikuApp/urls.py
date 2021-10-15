@@ -15,7 +15,11 @@ urlpatterns = [
 
     path('addCourse/',viewsProduct.addCourse, name='addCourse'),
     path('deleteCourse/',viewsProduct.deleteCourse, name='deleteCourse'),
+    path('updateCourse/',viewsProduct.updateCourse,name='updateCourse'),
+
     path('addSchedule/',viewsProduct.addSchedule, name='addSchedule'),
     path('deleteSchedule/',viewsProduct.deleteSchedule, name='deleteSchedule'),
+    path('updateSchedule/',viewsProduct.updateSchedule,name='updateSchedule'),
+
 
 ]
