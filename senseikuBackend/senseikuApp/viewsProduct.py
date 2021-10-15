@@ -28,6 +28,7 @@ def addCourse(request):
         "description":data['description'],
         "pricing":data['pricing'],
         "tutor_username":data['tutor_username'],
+        "message":"addCourse success"
     }
     try:
         Course.objects.create(
@@ -38,6 +39,36 @@ def addCourse(request):
         )
         return JsonResponse(courseDict)
     except IntegrityError:
+        courseDict.update(
+            {
+                "message":"addCourse failed, id already exists"
+            }
+        )
+        return JsonResponse(courseDict, status=404)
+
+@csrf_exempt
+def updateCourse(request):
+    data=json.loads(request.body.decode('utf-8'))
+    courseDict={
+        "id":data['id'],
+        "course_name":data['course_name'],
+        "description":data['description'],
+        "pricing":data['pricing'],
+        "tutor_username":data['tutor_username'],
+        "message":"Update success"
+    }
+    if Course.objects.filter(id=courseDict['id']).exists():
+        Course.objects.filter(id=courseDict['id']).update(
+            course_name=courseDict['course_name'],
+            description=courseDict['description'],
+            pricing=courseDict['pricing'],
+            tutor_username_id=courseDict['tutor_username']
+        )
+        return JsonResponse(courseDict)
+    else:
+        courseDict.update({
+            "message":"Update failed, id not exist"
+        })
         return JsonResponse(courseDict, status=404)
 
 @csrf_exempt
@@ -79,6 +110,31 @@ def addSchedule(request):
         )
         return JsonResponse(scheduleDict)
     except IntegrityError:
+        return JsonResponse(scheduleDict, status=404)
+
+@csrf_exempt
+def updateSchedule(request):
+    data=json.loads(request.body.decode('utf-8'))
+    
+    scheduleDict={
+        "id":data['id'],
+        "day":data['day'],
+        "hour":data['hour'],
+        "message":""
+    }
+    try:
+        Schedule.objects.filter(id=scheduleDict['id']).update(
+            day=scheduleDict['day'],
+            hour=scheduleDict['hour'],
+        )
+        scheduleDict.update({
+            "message":"Update success"
+        })
+        return JsonResponse(scheduleDict)
+    except IntegrityError:
+        scheduleDict.update({
+            "message":"Update failed, id not exist"
+        })
         return JsonResponse(scheduleDict, status=404)
 
 @csrf_exempt
