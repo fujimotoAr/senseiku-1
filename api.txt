@@ -1,29 +1,39 @@
-1. login/signup
-    a. sensei:
-        path: /loginTutor /signupTutor
-        method: POST
-        body: { "username": string, 
-        "password": string
-          }
-    b. student
-        path: /loginStudent /signupStudent
-        method: POST
-        body: { "username": string, 
-        "password": string
-          }
-2. profileStudent
-    path: /studentProfile/{username}
-    method: GET
-    response body : {
+1. signup
+    path: /signupTutor /signupStudent
+    method: POST
+    request: {
+        "username": string, 
+        "password": string,
+        "email": string,
+        "first_name": string,
+        "last_name": string
+    }
+    response: {
+        "username": string, 
+        "message": string
+    }
+2. login
+    path: /loginTutor /loginStudent
+    method: POST
+    request: {
         "username": string, 
         "password": string
     }
-3. profileSensei
-    path: /senseiProfile/{username}
+    response: {
+        "isAuth": boolean, 
+        "username": string,
+        "token": string,
+        "message": string,
+        "currentTime": string
+    }
+3. profile
+    path: /profileTutor/{username} /profileStudent/{username}
     method: GET
-    response body : {
+    response: {
         "username": string, 
-        "password": string
+        "email": string,
+        "first_name": string,
+        "last_name": string
     }
 4. getNewCourse -> home
     path: /newCourse
