@@ -9,6 +9,8 @@ urlpatterns = [
     path('loginStudent/', views.loginStudent, name='loginStudent'),
     path('signupTutor/',views.signupTutor, name='signupTutor'),
     path('signupStudent/',views.signupStudent, name='signupStudent'),
+    path('profileTutor/',views.signupTutor, name='profileTutor'),
+    path('profileStudent/',views.signupStudent, name='profileStudent'),
 
     path('getNewCourse/',viewsProduct.getNewCourse, name='getNewCourse'),
     path('getAllCourse/',viewsProduct.getAllCourse, name='getAllCourse'),

@@ -20,105 +20,110 @@ def exist(usernameInput,passwordInput):
     else:
         return False
 
-def is_member(user, group_name):
-    return user.groups.filter(name=group_name).exists()
-
 @csrf_exempt
 def loginTutor(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=exist(data['username'],data['password'])
-    message=""
-    loginDict={
-        "isAuth":isExist,
-        "username":data['username'],
-    }
+    token=" "
     if isExist:
         user=User.objects.get(username=data['username'])
-        if not is_member(user, 'tutor'):
+        if user.groups.filter(name='tutor').exists():
+            token=Token.objects.get_or_create(user=user)
+            message="Login berhasil"
+        else:
             message = "Tidak terdaftar sebagai tutor"
-            loginDict.update({"message": message})
-            return JsonResponse(loginDict, status=404)
-        token=Token.objects.get_or_create(user=user)
-        message="Login berhasil"
     else:
-        token=" "
         message="Username/Password tidak terdaftar"
-
     current_time = datetime.now() 
-    loginDict.update({
+    loginDict = {
+        "isAuth":isExist,
+        "username":data['username'],
         "token":str(token[0]),
         "message":message,
         "currentTime":current_time
-    })
+    }
     return JsonResponse(loginDict,safe=False)
 
 @csrf_exempt
 def loginStudent(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=exist(data['username'],data['password'])
-    message=""
+    token=" "
+    if isExist:
+        user=User.objects.get(username=data['username'])
+        if user.groups.filter(name='tutor').exists():
+            token=Token.objects.get_or_create(user=user)
+            message="Login berhasil"
+        else:
+            message = "Tidak terdaftar sebagai student"
+    else:
+        message="Username/Password tidak terdaftar"
+    current_time = datetime.now() 
     loginDict = {
         "isAuth":isExist,
         "username":data['username'],
-    }
-    if isExist:
-        user=User.objects.get(username=data['username'])
-        if not is_member(user, 'student'):
-            message = "Tidak terdaftar sebagai student"
-            loginDict.update({"message": message})
-            return JsonResponse(loginDict,status=404)
-        token=Token.objects.get_or_create(user=user)
-        message="Login berhasil"
-    else:
-        token=" "
-        message="Username/Password tidak terdaftar"
-
-    current_time = datetime.now() 
-    loginDict.update({
         "token":str(token[0]),
         "message":message,
         "currentTime":current_time
-    })
+    }
     return JsonResponse(loginDict,safe=False)
 
 @csrf_exempt
 def signupTutor(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=User.objects.filter(username=data['username']).exists()
-    global message
+    signupDict={"username":data['username']}
     if isExist:
         message="User sudah terdaftar"
-    else:
-        message="Signup berhasil"
-    signupDict={
-        "username":data['username'],
-        "message":message
-    }
-    if not isExist:
-        user = User.objects.create_user(username=data['username'],password=data['password'])
-        group = Group.objects.get(name='tutor')
-        user.groups.add(group)
-    else:
+        signupDict.update({'message': message})
         return JsonResponse(signupDict,status=404)
+    user = User.objects.create_user(username=data['username'],password=data['password'])
+    group = Group.objects.get(name='tutor')
+    user.groups.add(group)
+    message="Signup berhasil"
+    signupDict.update({'message': message})
     return JsonResponse(signupDict,status=200)
 
 @csrf_exempt
 def signupStudent(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=User.objects.filter(username=data['username']).exists()
-    global message
+    signupDict={"username":data['username']}
     if isExist:
         message="User sudah terdaftar"
-    else:
-        message="Signup berhasil"
-    signupDict={
-        "username":data['username'],
-        "message":message
-    }
-    if not isExist:
-        user = User.objects.create_user(username=data['username'],password=data['password'])
-        group = Group.objects.get(name='student')
-        user.groups.add(group)
-    else:
+        signupDict.update({'message': message})
         return JsonResponse(signupDict,status=404)
+    user = User.objects.create_user(username=data['username'],password=data['password'])
+    group = Group.objects.get(name='student')
+    user.groups.add(group)
+    message="Signup berhasil"
+    signupDict.update({'message': message})
     return JsonResponse(signupDict,status=200)
+
+def profileTutor(request):
+    username = request.GET.get('username')
+    user_filter = User.objects.filter(username=username)
+    user_get = User.objects.get(username=username)
+    if not user_get.groups.filter(name='tutor').exists():
+        message = "Tidak terdaftar sebagai tutor"        
+        profile_dict = {
+            'username': username,
+            'message': message
+        }
+        return JsonResponse(profile_dict,status=404)
+    profile_dict = serializers.serialize('json', user_filter, fields=('username', 'email', 'first_name', 'last_name'))
+    return HttpResponse(profile_dict)
+
+def profileStudent(request):
+    username = request.GET.get('username')
+    user_filter = User.objects.filter(username=username)
+    user_get = User.objects.get(username=username)
+    if not user_get.groups.filter(name='student').exists():
+        message = "Tidak terdaftar sebagai student"        
+        profile_dict = {
+            'username': username,
+            'message': message
+        }
+        return JsonResponse(profile_dict,status=404)
+    profile_dict = serializers.serialize('json', user_filter, fields=('username', 'email', 'first_name', 'last_name'))
+    return HttpResponse(profile_dict)
