@@ -5,8 +5,7 @@
         "username": string, 
         "password": string,
         "email": string,
-        "first_name": string,
-        "last_name": string
+        "first_name": string
     }
     response: {
         "username": string, 
@@ -32,8 +31,7 @@
     response: {
         "username": string, 
         "email": string,
-        "first_name": string,
-        "last_name": string
+        "first_name": string
     }
 4. getNewCourse -> home
     path: /newCourse

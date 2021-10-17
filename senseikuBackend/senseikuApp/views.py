@@ -77,8 +77,8 @@ def signupTutor(request):
         message="User sudah terdaftar"
         signupDict.update({'message': message})
         return JsonResponse(signupDict,status=404)
-    user = User.objects.create_user(username=data['username'],email=data['email'],password=data['password'],
-                                    first_name=data['first_name'],last_name=data['last_name'])
+    user = User.objects.create_user(username=data['username'],first_name=data['first_name'],
+                                    email=data['email'],password=data['password'])
     group = Group.objects.get(name='tutor')
     user.groups.add(group)
     message="Signup berhasil"
@@ -94,8 +94,8 @@ def signupStudent(request):
         message="User sudah terdaftar"
         signupDict.update({'message': message})
         return JsonResponse(signupDict,status=404)
-    user = User.objects.create_user(username=data['username'],email=data['email'],password=data['password'],
-                                    first_name=data['first_name'],last_name=data['last_name'])
+    user = User.objects.create_user(username=data['username'],first_name=data['first_name'],
+                                    email=data['email'],password=data['password'])
     group = Group.objects.get(name='student')
     user.groups.add(group)
     message="Signup berhasil"
@@ -113,7 +113,7 @@ def profileTutor(request):
             'message': message
         }
         return JsonResponse(profile_dict,status=404)
-    profile_dict = serializers.serialize('json', user_filter, fields=('username', 'email', 'first_name', 'last_name'))
+    profile_dict = serializers.serialize('json', user_filter, fields=('username', 'email', 'first_name'))
     return HttpResponse(profile_dict)
 
 def profileStudent(request):
@@ -127,5 +127,5 @@ def profileStudent(request):
             'message': message
         }
         return JsonResponse(profile_dict,status=404)
-    profile_dict = serializers.serialize('json', user_filter, fields=('username', 'email', 'first_name', 'last_name'))
+    profile_dict = serializers.serialize('json', user_filter, fields=('username', 'email', 'first_name'))
     return HttpResponse(profile_dict)
