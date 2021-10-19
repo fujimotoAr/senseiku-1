@@ -5,6 +5,8 @@ from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
+from django.core.serializers.json import DjangoJSONEncoder
+from django.forms.models import model_to_dict
 
 import json
 
@@ -19,6 +21,13 @@ def getAllCourse(request):
     courseList=Course.objects.all().order_by('id')
     courseData=serializers.serialize('json', courseList, fields=('id','course_name','description','pricing','tutor_username'))
     return HttpResponse(courseData)
+
+@csrf_exempt
+def getCourseDetail(request):
+    data=json.loads(request.body.decode('utf-8'))
+    selectedCourse=Schedule.objects.select_related('course_id').filter(course_id=data['id']).values('course_id','course_id__course_name','course_id__description','course_id__pricing','course_id__tutor_username', 'day','hour').first()
+    serialized=json.dumps(selectedCourse)
+    return HttpResponse(serialized)
 
 @csrf_exempt
 def addCourse(request):
