@@ -36,49 +36,77 @@
 4. getNewCourse -> home
     path: /newCourse
     method: GET
-    response body : {
-        course: [
-            { "id": integer/string,
-            "nama": string, 
-            "deskripsi": string,
-            "harga": float,
-            "sensei": string
-            },
-            { "id": integer/string,
-            "nama": string, 
-            "deskripsi": string,
-            "harga": float,
-            "sensei": string
-            }
-        ]
-    }
+    response: [
+        {
+            "id": integer,
+            "course_name": string, 
+            "description": string,
+            "pricing": integer,
+            "first_name": string
+        },
+        {
+            "id": integer,
+            "course_name": string, 
+            "description": string,
+            "pricing": integer,
+            "first_name": string
+        }
+    ]
 5. getMyCourse -> dashboard sensei
     path: /myCourse/{username}
     method: GET
-    response body (?): {
-        course: [
-            { "id": integer/string,
-            "nama": string, 
-            "deskripsi": string,
-            "harga": float
-            },
-            { "id": integer/string,
-            "nama": string, 
-            "deskripsi": string,
-            "harga": float
-            }
-        ]
-    }
-6. addProduct -> dashboard sensei
-    path: /addProduct
+    response: [
+        {
+            "id": integer,
+            "course_name": string, 
+            "description": string,
+            "pricing": integer,
+            "tutor_username": string
+        },
+        {
+            "id": integer,
+            "course_name": string, 
+            "description": string,
+            "pricing": integer,
+            "tutor_username": string
+        }
+    ]
+6. addCourse -> dashboard sensei
+    path: /addCourse
     method: POST
-    body: { "nama": string, 
-        "deskripsi": string,
-        "harga": float
+    request: {
+        "course_name": string, 
+        "description": string,
+        "pricing": integer,
+        "tutor_username": string
     }
-7. deleteProduct -> dashboard sensei
-    path: /deleteProduct/{productId}
+    response: {
+        "course_name": string, 
+        "description": string,
+        "pricing": integer,
+        "tutor_username": string,
+        "message": string
+    }
+7. deleteCourse -> dashboard sensei
+    path: /deleteCourse/{id}
     method: DELETE
+    response : {
+        "id": integer,
+        "message": string
+    }
+8. getCourseDetail
+    path: /courseDetail/{id}
+    method: GET
+    response: {
+        "id": integer,
+        "course_name": string, 
+        "description": string,
+        "pricing": integer,
+        "first_name": string,
+        "day": string,
+        "hour_start": string, (format: "HH:MM")
+        "hour_finish": string
+    }
 
 student -> home 
 sensei -> dashboard sensei
