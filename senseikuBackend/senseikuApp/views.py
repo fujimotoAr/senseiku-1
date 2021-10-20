@@ -21,6 +21,21 @@ def exist(usernameInput,passwordInput):
         return False
 
 @csrf_exempt
+def logout(request):
+    data=json.loads(request.body.decode('utf-8'))
+    isExist=User.objects.filter(username=data['username']).exists()
+    logoutDict={"username":data['username']}
+    if isExist:
+        user=User.objects.get(username=data['username'])
+        Token.objects.filter(user=user).delete()
+        message="Logout berhasil"
+        logoutDict.update({'message': message})
+        return JsonResponse(logoutDict,status=200)
+    message="Logout gagal"
+    logoutDict.update({'message': message})
+    return JsonResponse(logoutDict,status=404)
+
+@csrf_exempt
 def loginTutor(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=exist(data['username'],data['password'])
