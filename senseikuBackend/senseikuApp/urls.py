@@ -13,8 +13,9 @@ urlpatterns = [
     path('profileStudent/',views.signupStudent, name='profileStudent'),
     path('logout/',views.logout,name="logout"),
 
-    path('getNewCourse/',viewsProduct.getNewCourse, name='getNewCourse'),
-    path('getAllCourse/',viewsProduct.getAllCourse, name='getAllCourse'),
+    path('newCourse/',viewsProduct.getNewCourse, name='getNewCourse'),
+    path('myCourse/',viewsProduct.getMyCourse, name='getMyCourse'),
+    path('allCourse/',viewsProduct.getAllCourse, name='getAllCourse'),
     path('courseDetail/',viewsProduct.getCourseDetail,name='getCourseDetail'),
 
     path('addCourse/',viewsProduct.addCourse, name='addCourse'),
