@@ -1,4 +1,6 @@
 from json.decoder import JSONDecodeError
+from django.contrib.auth.models import User
+from django.db.models import fields
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from .models import Course, Schedule,Review
 from django.core import serializers
@@ -10,23 +12,41 @@ from django.forms.models import model_to_dict
 
 import json
 
-@csrf_exempt
 def getNewCourse(request):
-    courseList=Course.objects.all().order_by('-id')[:5]
-    courseData=serializers.serialize('json', courseList, fields=('id','course_name','description','pricing','tutor_username'))
+    courseList=[*Course.objects.order_by('-id')[:5], *User.objects.order_by('-course__id')[:5]]
+    courseData=serializers.serialize(
+        'json', courseList,
+        fields=('id','course_name','description','pricing','tutor_username','username','first_name')
+    )
     return HttpResponse(courseData)
 
-@csrf_exempt
+def getMyCourse(request):
+    data = request.GET.get('username')
+    courseList = Course.objects.filter(tutor_username=data)
+    courseData = serializers.serialize(
+        'json', courseList, fields=('id','course_name','description','pricing','tutor_username')
+    )
+    return HttpResponse(courseData)
+
 def getAllCourse(request):
-    courseList=Course.objects.all().order_by('id')
-    courseData=serializers.serialize('json', courseList, fields=('id','course_name','description','pricing','tutor_username'))
+    courseList=[*Course.objects.order_by('id'), *User.objects.order_by('course__id')]
+    courseData=serializers.serialize(
+        'json', courseList,
+        fields=('id','course_name','description','pricing','tutor_username','username','first_name')
+    )
     return HttpResponse(courseData)
 
-@csrf_exempt
 def getCourseDetail(request):
-    data=json.loads(request.body.decode('utf-8'))
-    selectedCourse=Schedule.objects.select_related('course_id').filter(course_id=data['id']).values('course_id','course_id__course_name','course_id__description','course_id__pricing','course_id__tutor_username', 'day','hour').first()
-    serialized=json.dumps(selectedCourse)
+    data = request.GET.get('id')
+    selectedCourse = [
+        *Course.objects.filter(id=data),
+        *User.objects.filter(course__id=data),
+        *Schedule.objects.filter(course_id=data)
+    ]
+    serialized = serializers.serialize(
+        'json', selectedCourse,
+        fields=('id','course_name','description','pricing','first_name','day','hour_start','hour_finish')
+    )
     return HttpResponse(serialized)
 
 @csrf_exempt
@@ -108,14 +128,16 @@ def addSchedule(request):
     scheduleDict={
         "course_id":data['course_id'],
         "day":data['day'],
-        "hour":data['hour'],
+        "hour_start":data['hour_start'],
+        "hour_finish":data['hour_finish'],
         "message":""
     }
     try:
         Schedule.objects.create(
             course_id_id=scheduleDict['course_id'],
             day=scheduleDict['day'],
-            hour=scheduleDict['hour'],
+            hour_start=scheduleDict['hour_start'],
+            hour_finish=scheduleDict['hour_finish'],
         )
         return JsonResponse(scheduleDict)
     except IntegrityError:
@@ -128,13 +150,15 @@ def updateSchedule(request):
     scheduleDict={
         "id":data['id'],
         "day":data['day'],
-        "hour":data['hour'],
+        "hour_start":data['hour_start'],
+        "hour_finish":data['hour_finish'],
         "message":""
     }
     try:
         Schedule.objects.filter(id=scheduleDict['id']).update(
             day=scheduleDict['day'],
-            hour=scheduleDict['hour'],
+            hour_start=scheduleDict['hour_start'],
+            hour_finish=scheduleDict['hour_finish'],
         )
         scheduleDict.update({
             "message":"Update success"
