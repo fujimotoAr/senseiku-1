@@ -48,6 +48,7 @@ def loginTutor(request):
             message="Login berhasil"
         else:
             message = "Tidak terdaftar sebagai tutor"
+            isExist=False
     else:
         message="Username/Password tidak terdaftar"
     current_time = datetime.now() 
@@ -74,6 +75,8 @@ def loginStudent(request):
             message="Login berhasil"
         else:
             message = "Tidak terdaftar sebagai student"
+            isExist=False
+
     else:
         message="Username/Password tidak terdaftar"
     current_time = datetime.now() 
