@@ -39,6 +39,7 @@ def logout(request):
 def loginTutor(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=exist(data['username'],data['password'])
+    role="tutor"
     token=" "
     if isExist:
         user=User.objects.get(username=data['username'])
@@ -55,7 +56,8 @@ def loginTutor(request):
         "username":data['username'],
         "token":str(token[0]),
         "message":message,
-        "currentTime":current_time
+        "currentTime":current_time,
+        "role":role
     }
     return JsonResponse(loginDict,safe=False)
 
@@ -64,6 +66,7 @@ def loginStudent(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=exist(data['username'],data['password'])
     token=" "
+    role="student"
     if isExist:
         user=User.objects.get(username=data['username'])
         if user.groups.filter(name='student').exists():
@@ -79,7 +82,8 @@ def loginStudent(request):
         "username":data['username'],
         "token":str(token[0]),
         "message":message,
-        "currentTime":current_time
+        "currentTime":current_time,
+        "role":role
     }
     return JsonResponse(loginDict,safe=False)
 
