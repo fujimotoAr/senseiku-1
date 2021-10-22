@@ -66,7 +66,7 @@ def loginStudent(request):
     token=" "
     if isExist:
         user=User.objects.get(username=data['username'])
-        if user.groups.filter(name='tutor').exists():
+        if user.groups.filter(name='student').exists():
             token=Token.objects.get_or_create(user=user)
             message="Login berhasil"
         else:
