@@ -107,6 +107,18 @@
         "hour_start": string, (format: "HH:MM")
         "hour_finish": string
     }
+9. tracker
+    path: /tracker
+    method: POST
+    request: {
+        "course_id": integer,
+        "username": string,
+        "event": integer,
+        "timestamp": string
+    }
+    response: {
+        "message": string
+    }
 
 student -> home 
 sensei -> dashboard sensei
