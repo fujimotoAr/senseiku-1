@@ -2,7 +2,7 @@ from json.decoder import JSONDecodeError
 from django.contrib.auth.models import User
 from django.db.models import fields
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from .models import Course, Schedule,Review
+from .models import Course, Schedule,Review,Tracker
 from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
@@ -188,3 +188,28 @@ def deleteSchedule(request):
             "message":"Delete failed, id not exist"
         })
         return JsonResponse(scheduleDict, status=404)
+
+@csrf_exempt
+def tracker(request):
+    data=json.loads(request.body.decode('utf-8'))
+    trackerDict={
+        "course_id":data['course_id'],
+        "username":data['username'],
+        "event":data['event'],
+        "timestamp":data['timestamp']
+    }
+    statusDict={
+        "message":"success"
+    }
+    try:
+        Tracker.objects.create(
+            course_id=trackerDict['course_id'],
+            username=trackerDict['username'],
+            event=trackerDict['event'],
+            timestamp=trackerDict['timestamp']
+        )
+        return JsonResponse(statusDict, status=200)
+    except IntegrityError:
+        statusDict['message']="failed"
+        return JsonResponse(statusDict, status=404)
+    

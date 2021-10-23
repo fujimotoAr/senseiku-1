@@ -26,5 +26,7 @@ urlpatterns = [
     path('deleteSchedule/',viewsProduct.deleteSchedule, name='deleteSchedule'),
     path('updateSchedule/',viewsProduct.updateSchedule,name='updateSchedule'),
 
+    path('tracker/',viewsProduct.tracker,name="tracker")
+
 
 ]
