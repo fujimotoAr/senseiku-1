@@ -1,6 +1,6 @@
 from senseikuApp import viewsProduct
 from django.urls import path
-from rest_framework.authtoken.views import obtain_auth_token 
+from rest_framework.authtoken.views import obtain_auth_token
 
 from . import views
 
@@ -26,6 +26,8 @@ urlpatterns = [
     path('deleteSchedule/',viewsProduct.deleteSchedule, name='deleteSchedule'),
     path('updateSchedule/',viewsProduct.updateSchedule,name='updateSchedule'),
 
+    path('addCart/',viewsProduct.addCart,name='addCart'),
+    path('myCart/',viewsProduct.getMyCart,name='getMyCart'),
     path('tracker/',viewsProduct.tracker,name="tracker")
 
 

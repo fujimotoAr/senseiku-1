@@ -2,7 +2,7 @@ from json.decoder import JSONDecodeError
 from django.contrib.auth.models import User
 from django.db.models import fields
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from .models import Course, Schedule,Review,Tracker
+from .models import Course, Schedule, Cart, Tracker, Review 
 from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
@@ -41,11 +41,12 @@ def getCourseDetail(request):
     selectedCourse = [
         *Course.objects.filter(id=data),
         *User.objects.filter(course__id=data),
-        *Schedule.objects.filter(course_id=data)
+        *Schedule.objects.filter(tutor_username='course__tutor_username')
     ]
     serialized = serializers.serialize(
-        'json', selectedCourse,
-        fields=('id','course_name','description','pricing','first_name','day','hour_start','hour_finish')
+        'json', selectedCourse, fields=('course_name','description','pricing','tutor_username',
+                                        'username','first_name',
+                                        'tutor_username','date','hour_start','hour_finish','availability')
     )
     return HttpResponse(serialized)
 
@@ -126,21 +127,24 @@ def addSchedule(request):
     data=json.loads(request.body.decode('utf-8'))
     
     scheduleDict={
-        "course_id":data['course_id'],
-        "day":data['day'],
+        "tutor_username":data['tutor_username'],
+        "date":data['date'],
         "hour_start":data['hour_start'],
         "hour_finish":data['hour_finish'],
-        "message":""
+        "availability":data['availability'],
+        "message":"success"
     }
     try:
         Schedule.objects.create(
-            course_id_id=scheduleDict['course_id'],
-            day=scheduleDict['day'],
+            tutor_username_id=scheduleDict['tutor_username'],
+            date=scheduleDict['date'],
             hour_start=scheduleDict['hour_start'],
             hour_finish=scheduleDict['hour_finish'],
+            availability=scheduleDict['availability']
         )
         return JsonResponse(scheduleDict)
     except IntegrityError:
+        scheduleDict['message'] = 'failed'
         return JsonResponse(scheduleDict, status=404)
 
 @csrf_exempt
@@ -149,16 +153,20 @@ def updateSchedule(request):
     
     scheduleDict={
         "id":data['id'],
-        "day":data['day'],
+        "tutor_username":data['tutor_username'],
+        "date":data['date'],
         "hour_start":data['hour_start'],
         "hour_finish":data['hour_finish'],
+        "availability":data['availability'],
         "message":""
     }
     try:
         Schedule.objects.filter(id=scheduleDict['id']).update(
-            day=scheduleDict['day'],
+            tutor_username=scheduleDict['tutor_username'],
+            date=scheduleDict['date'],
             hour_start=scheduleDict['hour_start'],
             hour_finish=scheduleDict['hour_finish'],
+            availability=scheduleDict['availability']
         )
         scheduleDict.update({
             "message":"Update success"
@@ -190,6 +198,47 @@ def deleteSchedule(request):
         return JsonResponse(scheduleDict, status=404)
 
 @csrf_exempt
+def addCart(request):
+    data = json.loads(request.body.decode('utf-8'))
+    cartDict = {
+        "student_username": data['student_username'],
+        "schedule_id": data['schedule_id'],
+        "course_id": data['course_id'],
+        "num_meetings": data['num_meetings'],
+        "message": "success"
+    }
+    try:
+        Cart.objects.create(
+            student_username_id = cartDict['student_username'],
+            schedule_id_id = cartDict['schedule_id'],
+            course_id_id = cartDict['course_id'],
+            num_meetings = cartDict['num_meetings']
+        )
+        Schedule.objects.filter(id=data['schedule_id']).update(
+            availability = False
+        )
+        return JsonResponse(cartDict)
+    except IntegrityError:
+        cartDict['message'] = "failed"
+        return JsonResponse(cartDict, status=404)
+
+def getMyCart(request):
+    data = request.GET.get('username')
+    cartList = [
+        *Cart.objects.filter(student_username=data),
+        *Course.objects.filter(cart__student_username=data),
+        *User.objects.filter(username='course__tutor_username'),
+        *Schedule.objects.filter(cart__student_username=data)
+    ]
+    cartData = serializers.serialize(
+        'json', cartList, fields=('student_username','course_id','schedule_id','num_meetings',
+                                  'course_name','description','pricing','tutor_username',
+                                  'username','first_name',
+                                  'tutor_username','date','hour_start','hour_finish')
+    )
+    return HttpResponse(cartData)
+
+@csrf_exempt
 def tracker(request):
     data=json.loads(request.body.decode('utf-8'))
     trackerDict={
@@ -203,8 +252,8 @@ def tracker(request):
     }
     try:
         Tracker.objects.create(
-            course_id=trackerDict['course_id'],
-            username=trackerDict['username'],
+            course_id_id=trackerDict['course_id'],
+            username_id=trackerDict['username'],
             event=trackerDict['event'],
             timestamp=trackerDict['timestamp']
         )
