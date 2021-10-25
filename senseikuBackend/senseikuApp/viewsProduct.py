@@ -1,6 +1,6 @@
 from json.decoder import JSONDecodeError
 from django.contrib.auth.models import User
-from django.db.models import fields
+from django.db.models import fields, query
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from .models import Course, Schedule, Cart, Tracker, Review 
 from django.core import serializers
@@ -38,15 +38,21 @@ def getAllCourse(request):
 
 def getCourseDetail(request):
     data = request.GET.get('id')
-    selectedCourse = [
-        *Course.objects.filter(id=data),
-        *User.objects.filter(course__id=data),
-        *Schedule.objects.filter(tutor_username='course__tutor_username')
-    ]
+    query = '''
+        SELECT *
+        FROM senseikuApp_course
+        JOIN auth_user
+        ON senseikuApp_course.username = auth_user.username
+        JOIN senseikuApp_schedule
+        ON senseikuApp_course.username = senseikuApp_schedule.username
+        WHERE senseikuApp_course.id = %s
+    '''
+    selectedCourse = [*Course.objects.raw(query, [data]), *User.objects.raw(query, [data]),
+                      *Schedule.objects.raw(query, [data])]
     serialized = serializers.serialize(
-        'json', selectedCourse, fields=('course_name','description','pricing','tutor_username',
-                                        'username','first_name',
-                                        'tutor_username','date','hour_start','hour_finish','availability')
+        'json', selectedCourse,
+        fields=('course_name','description','pricing','username','first_name',
+                'date','hour_start','hour_finish','availability')
     )
     return HttpResponse(serialized)
 
@@ -224,19 +230,32 @@ def addCart(request):
 
 def getMyCart(request):
     data = request.GET.get('username')
-    cartList = [
-        *Cart.objects.filter(student_username=data),
-        *Course.objects.filter(cart__student_username=data),
-        *User.objects.filter(username='course__tutor_username'),
-        *Schedule.objects.filter(cart__student_username=data)
-    ]
-    cartData = serializers.serialize(
-        'json', cartList, fields=('student_username','course_id','schedule_id','num_meetings',
-                                  'course_name','description','pricing','tutor_username',
-                                  'username','first_name',
-                                  'tutor_username','date','hour_start','hour_finish')
-    )
-    return HttpResponse(cartData)
+    if Cart.objects.filter(student_username=data).exists():
+        query = '''
+            SELECT *
+            FROM senseikuApp_cart
+            JOIN senseikuApp_course
+            ON senseikuApp_cart.course_id_id = senseikuApp_course.id
+            JOIN senseikuApp_schedule
+            ON senseikuApp_cart.schedule_id_id = senseikuApp_schedule.id
+			JOIN auth_user
+			ON senseikuApp_course.username = auth_user.username
+            WHERE senseikuApp_cart.username = %s
+        '''
+        cartList = [*Cart.objects.raw(query, [data]), *Course.objects.raw(query, [data]),
+                    *User.objects.raw(query, [data]), *Schedule.objects.raw(query, [data])]
+        cartData = serializers.serialize(
+            'json', cartList,
+            fields=('student_username','num_meetings','course_name','description','pricing',
+                    'first_name','date','hour_start','hour_finish')
+        )
+        return HttpResponse(cartData)
+    else:
+        cartData = {
+            'student_username': data,
+            'message': 'empty cart'
+        }
+        return JsonResponse(cartData)
 
 @csrf_exempt
 def tracker(request):
