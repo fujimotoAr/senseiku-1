@@ -23,7 +23,8 @@
         "username": string,
         "token": string,
         "message": string,
-        "currentTime": string
+        "currentTime": string,
+        "role": string
     }
 3. profile
     path: /profileTutor/{username} /profileStudent/{username}
@@ -103,11 +104,42 @@
         "description": string,
         "pricing": integer,
         "first_name": string,
-        "day": string,
+        "date": string,
         "hour_start": string, (format: "HH:MM")
-        "hour_finish": string
+        "hour_finish": string,
+        "availability": boolean
     }
-9. tracker
+9. addCart
+    path: /addCart
+    method: POST
+    request: {
+        "student_username": string,
+        "schedule_id": integer,
+        "course_id": integer,
+        "num_meetings": integer
+    }
+    response: {
+        "student_username": string,
+        "schedule_id": integer,
+        "course_id": integer,
+        "num_meetings": integer,
+        "message": string
+    }
+10. getMyCart
+    path: /myCart/{username}
+    method: GET
+    response: {
+        "student_username": string,
+        "course_name": string, 
+        "description": string,
+        "pricing": integer,
+        "first_name": string, (tutor)
+        "date": string,
+        "hour_start": string,
+        "hour_finish": string,
+        "num_meetings": integer
+    }
+11. tracker
     path: /tracker
     method: POST
     request: {
