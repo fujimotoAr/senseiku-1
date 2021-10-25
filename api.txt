@@ -125,8 +125,8 @@
         "num_meetings": integer,
         "message": string
     }
-10. getCart
-    path: /getCart/{username}
+10. getMyCart
+    path: /myCart/{username}
     method: GET
     response: {
         "student_username": string,
@@ -136,7 +136,8 @@
         "first_name": string, (tutor)
         "date": string,
         "hour_start": string,
-        "hour_finish": string
+        "hour_finish": string,
+        "num_meetings": integer
     }
 11. tracker
     path: /tracker
