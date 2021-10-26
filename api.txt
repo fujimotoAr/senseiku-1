@@ -136,8 +136,7 @@
         "first_name": string, (tutor)
         "date": string,
         "hour_start": string,
-        "hour_finish": string,
-        "num_meetings": integer
+        "hour_finish": string
     }
 11. tracker
     path: /tracker

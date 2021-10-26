@@ -31,7 +31,6 @@ class Cart(models.Model):
     student_username = models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
     course_id = models.ForeignKey(Course,on_delete=models.CASCADE)
     schedule_id = models.ForeignKey(Schedule,on_delete=models.CASCADE)
-    num_meetings = models.IntegerField()
 
 class Tracker(models.Model):
     id = models.AutoField(primary_key=True,unique=True)

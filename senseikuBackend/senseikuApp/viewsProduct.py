@@ -137,7 +137,6 @@ def addSchedule(request):
         "date":data['date'],
         "hour_start":data['hour_start'],
         "hour_finish":data['hour_finish'],
-        "availability":data['availability'],
         "message":"success"
     }
     try:
@@ -146,7 +145,7 @@ def addSchedule(request):
             date=scheduleDict['date'],
             hour_start=scheduleDict['hour_start'],
             hour_finish=scheduleDict['hour_finish'],
-            availability=scheduleDict['availability']
+            availability=True
         )
         return JsonResponse(scheduleDict)
     except IntegrityError:
@@ -210,7 +209,6 @@ def addCart(request):
         "student_username": data['student_username'],
         "schedule_id": data['schedule_id'],
         "course_id": data['course_id'],
-        "num_meetings": data['num_meetings'],
         "message": "success"
     }
     try:
@@ -218,7 +216,6 @@ def addCart(request):
             student_username_id = cartDict['student_username'],
             schedule_id_id = cartDict['schedule_id'],
             course_id_id = cartDict['course_id'],
-            num_meetings = cartDict['num_meetings']
         )
         Schedule.objects.filter(id=data['schedule_id']).update(
             availability = False
@@ -246,8 +243,8 @@ def getMyCart(request):
                     *User.objects.raw(query, [data]), *Schedule.objects.raw(query, [data])]
         cartData = serializers.serialize(
             'json', cartList,
-            fields=('student_username','num_meetings','course_name','description','pricing',
-                    'first_name','date','hour_start','hour_finish')
+            fields=('student_username','course_name','description','pricing','first_name',
+                    'date','hour_start','hour_finish')
         )
         return HttpResponse(cartData)
     else:
