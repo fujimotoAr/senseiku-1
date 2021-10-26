@@ -130,10 +130,12 @@
     method: GET
     response: {
         "student_username": string,
+        "course_id": integer,
         "course_name": string, 
         "description": string,
         "pricing": integer,
         "first_name": string, (tutor)
+        "schedule_id": integer,
         "date": string,
         "hour_start": string,
         "hour_finish": string
