@@ -150,20 +150,16 @@ def updateSchedule(request):
     
     scheduleDict={
         "id":data['id'],
-        "tutor_username":data['tutor_username'],
         "date":data['date'],
         "hour_start":data['hour_start'],
         "hour_finish":data['hour_finish'],
-        "availability":data['availability'],
         "message":""
     }
     try:
         Schedule.objects.filter(id=scheduleDict['id']).update(
-            tutor_username=scheduleDict['tutor_username'],
             date=scheduleDict['date'],
             hour_start=scheduleDict['hour_start'],
             hour_finish=scheduleDict['hour_finish'],
-            availability=scheduleDict['availability']
         )
         scheduleDict.update({
             "message":"Update success"
