@@ -38,17 +38,9 @@ def getAllCourse(request):
 
 def getCourseDetail(request):
     data = request.GET.get('id')
-    query = '''
-        SELECT *
-        FROM senseikuApp_course
-        JOIN auth_user
-        ON senseikuApp_course.username = auth_user.username
-        JOIN senseikuApp_schedule
-        ON senseikuApp_course.username = senseikuApp_schedule.username
-        WHERE senseikuApp_course.id = %s
-    '''
-    selectedCourse = [*Course.objects.raw(query, [data]), *User.objects.raw(query, [data]),
-                      *Schedule.objects.raw(query, [data])]
+    username = Course.objects.filter(id=data).values_list('tutor_username')[0]
+    selectedCourse = [*Course.objects.filter(id=data), *User.objects.filter(course__id=data),
+                      *Schedule.objects.filter(tutor_username=username)]
     serialized = serializers.serialize(
         'json', selectedCourse,
         fields=('course_name','description','pricing','username','first_name',
@@ -227,23 +219,18 @@ def addCart(request):
 
 def getMyCart(request):
     data = request.GET.get('username')
+    id = Course.objects.filter(cart__student_username=data).values_list('id')[0]
     if Cart.objects.filter(student_username=data).exists():
-        query = '''
-            SELECT *
-            FROM senseikuApp_cart
-            JOIN senseikuApp_course
-            ON senseikuApp_cart.course_id_id = senseikuApp_course.id
-            JOIN senseikuApp_schedule
-            ON senseikuApp_cart.schedule_id_id = senseikuApp_schedule.id
-			JOIN auth_user
-			ON senseikuApp_course.username = auth_user.username
-            WHERE senseikuApp_cart.username = %s
-        '''
-        cartList = [*Cart.objects.raw(query, [data]), *Course.objects.raw(query, [data]),
-                    *User.objects.raw(query, [data]), *Schedule.objects.raw(query, [data])]
+        cartList = [
+            *Cart.objects.filter(student_username=data),
+            *Course.objects.filter(cart__student_username=data),
+            *User.objects.filter(course__id=id),
+            *Schedule.objects.filter(cart__student_username=data)
+        ]
         cartData = serializers.serialize(
             'json', cartList,
-            fields=('student_username','course_name','description','pricing','first_name',
+            fields=('student_username','course_id','schedule_id',
+                    'course_name','description','pricing','first_name',
                     'date','hour_start','hour_finish')
         )
         return HttpResponse(cartData)
