@@ -36,7 +36,7 @@ class Cart(models.Model):
 class Tracker(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
     course_id = models.ForeignKey(Course,on_delete=models.CASCADE)
-    username = models.ForeignKey(User,to_field="username",db_column="username",default="-1",on_delete=models.CASCADE)
+    username = models.ForeignKey(User,to_field="username",db_column="username",default="guest",on_delete=models.CASCADE)
     event = models.IntegerField()
     timestamp = models.CharField(max_length=1000)
 
