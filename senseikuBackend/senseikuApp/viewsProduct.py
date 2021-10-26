@@ -38,9 +38,9 @@ def getAllCourse(request):
 
 def getCourseDetail(request):
     data = request.GET.get('id')
-    username = Course.objects.filter(id=data).values_list('tutor_username')[0]
+    username = Course.objects.filter(id=data).values_list('tutor_username')
     selectedCourse = [*Course.objects.filter(id=data), *User.objects.filter(course__id=data),
-                      *Schedule.objects.filter(tutor_username=username)]
+                      *Schedule.objects.filter(tutor_username__in=username)]
     serialized = serializers.serialize(
         'json', selectedCourse,
         fields=('course_name','description','pricing','username','first_name',
@@ -215,18 +215,18 @@ def addCart(request):
 
 def getMyCart(request):
     data = request.GET.get('username')
-    id = Course.objects.filter(cart__student_username=data).values_list('id')[0]
+    username = Course.objects.filter(cart__student_username=data).values_list('tutor_username')
     if Cart.objects.filter(student_username=data).exists():
         cartList = [
             *Cart.objects.filter(student_username=data),
             *Course.objects.filter(cart__student_username=data),
-            *User.objects.filter(course__id=id),
+            *User.objects.filter(username__in=username),
             *Schedule.objects.filter(cart__student_username=data)
         ]
         cartData = serializers.serialize(
             'json', cartList,
             fields=('student_username','course_id','schedule_id',
-                    'course_name','description','pricing','first_name',
+                    'course_name','description','pricing','tutor_username','username','first_name',
                     'date','hour_start','hour_finish')
         )
         return HttpResponse(cartData)
