@@ -17,6 +17,7 @@ urlpatterns = [
     path('myCourse/',viewsProduct.getMyCourse, name='getMyCourse'),
     path('allCourse/',viewsProduct.getAllCourse, name='getAllCourse'),
     path('courseDetail/',viewsProduct.getCourseDetail,name='getCourseDetail'),
+    path('mySchedule/',viewsProduct.getMySchedule,name='getMySchedule'),
 
     path('addCourse/',viewsProduct.addCourse, name='addCourse'),
     path('deleteCourse/',viewsProduct.deleteCourse, name='deleteCourse'),

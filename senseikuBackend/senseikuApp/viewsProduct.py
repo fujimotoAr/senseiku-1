@@ -28,6 +28,14 @@ def getMyCourse(request):
     )
     return HttpResponse(courseData)
 
+def getMySchedule(request):
+    data = request.GET.get('username')
+    scheduleList = Schedule.objects.filter(tutor_username=data)
+    scheduleData = serializers.serialize(
+        'json', scheduleList, fields=('id','tutor_username','date','hour_start','hour_finish','availability')
+    )
+    return HttpResponse(scheduleData)
+
 def getAllCourse(request):
     courseList=[*Course.objects.order_by('id'), *User.objects.order_by('course__id')]
     courseData=serializers.serialize(
