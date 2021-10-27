@@ -29,6 +29,7 @@ urlpatterns = [
 
     path('addCart/',viewsProduct.addCart,name='addCart'),
     path('myCart/',viewsProduct.getMyCart,name='getMyCart'),
+    path('deleteMyCart/',viewsProduct.deleteMyCart,name="deleteMyCart"),
     path('tracker/',viewsProduct.tracker,name="tracker")
 
 

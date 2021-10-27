@@ -245,6 +245,18 @@ def getMyCart(request):
         }
         return JsonResponse(cartData)
 
+def deleteMyCart(request):
+    data = request.GET.get('username')
+    output={
+        "message":"remove success"
+    }
+    if Cart.objects.filter(student_username=data).exists():
+        Cart.objects.filter(student_username=data).delete()
+        return JsonResponse(output,status=200)
+    else:
+        output['message']="already empty"
+        return JsonResponse(output,status=404)
+
 @csrf_exempt
 def tracker(request):
     data=json.loads(request.body.decode('utf-8'))
