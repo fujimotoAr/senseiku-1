@@ -6,9 +6,9 @@ from django.contrib.auth.models import User
 
 class Location(models.Model):
     username=models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
-    latitude=models.FloatField()
-    longitude=models.FloatField()
-    timestamp=models.IntegerField()
+    latitude=models.FloatField(null=True)
+    longitude=models.FloatField(null=True)
+    timestamp=models.IntegerField(null=True)
 
 class Course(models.Model):
     id = models.AutoField(primary_key=True,unique=True)

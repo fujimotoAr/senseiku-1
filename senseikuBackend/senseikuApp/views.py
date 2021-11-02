@@ -103,6 +103,7 @@ def signupTutor(request):
                                     email=data['email'],password=data['password'])
     group = Group.objects.get(name='tutor')
     user.groups.add(group)
+    Location.objects.create(username=user)
     message="Signup berhasil"
     signupDict.update({'message': message})
     return JsonResponse(signupDict,status=200)
@@ -120,6 +121,7 @@ def signupStudent(request):
                                     email=data['email'],password=data['password'])
     group = Group.objects.get(name='student')
     user.groups.add(group)
+    Location.objects.create(username=user)
     message="Signup berhasil"
     signupDict.update({'message': message})
     return JsonResponse(signupDict,status=200)
