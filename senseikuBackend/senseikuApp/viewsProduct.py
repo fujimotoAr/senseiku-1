@@ -7,6 +7,8 @@ from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
+from sklearn.metrics.pairwise import haversine_distances
+from math import radians
 from django.core.serializers.json import DjangoJSONEncoder
 from django.forms.models import model_to_dict
 
@@ -223,27 +225,46 @@ def addCart(request):
 
 def getMyCart(request):
     data = request.GET.get('username')
-    username = Course.objects.filter(cart__student_username=data).values_list('tutor_username')
     if Cart.objects.filter(student_username=data).exists():
-        cartList = [
-            *Cart.objects.filter(student_username=data),
-            *Course.objects.filter(cart__student_username=data),
-            *User.objects.filter(username__in=username),
-            *Schedule.objects.filter(cart__student_username=data)
-        ]
-        cartData = serializers.serialize(
-            'json', cartList,
-            fields=('student_username','course_id','schedule_id',
-                    'course_name','description','pricing','tutor_username','username','first_name',
-                    'date','hour_start','hour_finish')
-        )
-        return HttpResponse(cartData)
+        cartList = list(Cart.objects.filter(student_username=data).values(
+            'id','student_username','course_id','course_id__course_name',
+            'course_id__description','course_id__pricing',
+            'course_id__tutor_username','course_id__tutor_username__first_name',
+            'schedule_id','schedule_id__date',
+            'schedule_id__hour_start','schedule_id__hour_finish',
+            'course_id__tutor_username__location__latitude',
+            'course_id__tutor_username__location__longitude',
+            'student_username__location__latitude',
+            'student_username__location__longitude',
+        ))
+        for key in cartList:
+            key['course_name'] = key.pop('course_id__course_name')
+            key['description'] = key.pop('course_id__description')
+            key['pricing'] = key.pop('course_id__pricing')
+            key['tutor_username'] = key.pop('course_id__tutor_username')
+            key['first_name'] = key.pop('course_id__tutor_username__first_name')
+            key['date'] = key.pop('schedule_id__date')
+            key['hour_start'] = key.pop('schedule_id__hour_start')
+            key['hour_finish'] = key.pop('schedule_id__hour_finish')
+            tutor_latitude = key.pop('course_id__tutor_username__location__latitude')
+            tutor_longitude = key.pop('course_id__tutor_username__location__longitude')
+            student_latitude = key.pop('student_username__location__latitude')
+            student_longitude = key.pop('student_username__location__longitude')
+            tutor_loc = [tutor_latitude, tutor_longitude]
+            student_loc = [student_latitude, student_longitude]
+            tutor_loc_rad = [radians(_) for _ in tutor_loc]
+            student_loc_rad = [radians(_) for _ in student_loc]
+            distance = haversine_distances([tutor_loc_rad, student_loc_rad])
+            distance = distance * 6371000/1000
+            price = 5000*distance[0][1]
+            key['transport_price'] = price
+            key.pop('student_latitude')
+            key.pop('student_longitude')
+            key.pop('tutor_latitude')
+            key.pop('tutor_longitude')
     else:
-        cartData = {
-            'student_username': data,
-            'message': 'empty cart'
-        }
-        return JsonResponse(cartData)
+        cartList = {'student_username': data, 'message': 'empty cart'}
+    return JsonResponse(cartList, safe=False)
 
 def deleteMyCart(request):
     data = request.GET.get('username')
