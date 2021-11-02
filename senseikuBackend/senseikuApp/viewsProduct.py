@@ -250,13 +250,15 @@ def getMyCart(request):
             tutor_longitude = key.pop('course_id__tutor_username__location__longitude')
             student_latitude = key.pop('student_username__location__latitude')
             student_longitude = key.pop('student_username__location__longitude')
-            tutor_loc = [tutor_latitude, tutor_longitude]
-            student_loc = [student_latitude, student_longitude]
-            tutor_loc_rad = [radians(_) for _ in tutor_loc]
-            student_loc_rad = [radians(_) for _ in student_loc]
-            distance = haversine_distances([tutor_loc_rad, student_loc_rad])
-            distance = distance * 6371000/1000
-            price = 5000*distance[0][1]
+            price = 0
+            if tutor_latitude and tutor_longitude and student_latitude and student_longitude is not None:
+                tutor_loc = [tutor_latitude, tutor_longitude]
+                student_loc = [student_latitude, student_longitude]
+                tutor_loc_rad = [radians(_) for _ in tutor_loc]
+                student_loc_rad = [radians(_) for _ in student_loc]
+                distance = haversine_distances([tutor_loc_rad, student_loc_rad])
+                distance = distance * 6371000/1000
+                price = 5000*distance[0][1]
             key['transport_price'] = price
     else:
         cartList = {'student_username': data, 'message': 'empty cart'}
