@@ -11,6 +11,7 @@ urlpatterns = [
     path('signupStudent/',views.signupStudent, name='signupStudent'),
     path('profileTutor/',views.profileTutor, name='profileTutor'),
     path('profileStudent/',views.profileStudent, name='profileStudent'),
+    path('editProfile/',views.editProfile,name='editProfile'),
     path('logout/',views.logout,name="logout"),
 
     path('newCourse/',viewsProduct.getNewCourse, name='getNewCourse'),

@@ -4,6 +4,12 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 
 
+class Location(models.Model):
+    username=models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
+    latitude=models.FloatField()
+    longitude=models.FloatField()
+    timestamp=models.IntegerField()
+
 class Course(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
     course_name = models.CharField(max_length=100)
@@ -37,5 +43,5 @@ class Tracker(models.Model):
     course_id = models.ForeignKey(Course,on_delete=models.CASCADE)
     username = models.ForeignKey(User,to_field="username",db_column="username",default="guest",on_delete=models.CASCADE)
     event = models.IntegerField()
-    timestamp = models.CharField(max_length=1000)
+    timestamp = models.IntegerField()
 
