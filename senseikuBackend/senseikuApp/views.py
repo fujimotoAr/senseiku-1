@@ -2,7 +2,7 @@ from json.decoder import JSONDecodeError
 from django.contrib import auth
 from django.core.checks import messages
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from .models import Course
+from .models import Course, Location
 from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
@@ -151,3 +151,39 @@ def profileStudent(request):
         return JsonResponse(profile_dict,status=404)
     profile_dict = serializers.serialize('json', user_filter, fields=('username', 'email', 'first_name'))
     return HttpResponse(profile_dict)
+
+@csrf_exempt
+def editProfile(request):
+    data=json.loads(request.body.decode('utf-8')) #username,password, first_name, email, latitude, longitude, timestamp
+    editDict={
+        "message":"edit success"
+    }
+    isExist=User.objects.filter(username=data['username']).exists()
+    if isExist:
+        if data['password'] != "":
+            User.objects.filter(username=data['username']).update(
+                password=data['password']
+            )
+        if data['first_name'] != "":
+            User.objects.filter(username=data['username']).update(
+                first_name=data['first_name']
+            )
+        if data['email'] != "":
+            User.objects.filter(username=data['username']).update(
+                email=data['email']
+            )
+        if data['latitude'] != "":
+            Location.objects.filter(username=data['username']).update(
+                latitude=data['latitude']
+            )
+        if data['longitude'] != "":
+            Location.objects.filter(username=data['username']).update(
+                longitude=data['longitude']
+            )
+        if data['timestamp'] != "":
+            Location.objects.filter(username=data['username']).update(
+                timestamp=data['timestamp']
+            )
+        return JsonResponse(editDict,status=200)
+    editDict['message']="edit failed"
+    return JsonResponse(editDict,status=404)
