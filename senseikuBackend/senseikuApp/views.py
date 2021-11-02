@@ -2,7 +2,7 @@ from json.decoder import JSONDecodeError
 from django.contrib import auth
 from django.core.checks import messages
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from .models import Course
+from .models import Course, Location
 from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
@@ -39,6 +39,7 @@ def logout(request):
 def loginTutor(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=exist(data['username'],data['password'])
+    role="tutor"
     token=" "
     if isExist:
         user=User.objects.get(username=data['username'])
@@ -47,6 +48,7 @@ def loginTutor(request):
             message="Login berhasil"
         else:
             message = "Tidak terdaftar sebagai tutor"
+            isExist=False
     else:
         message="Username/Password tidak terdaftar"
     current_time = datetime.now() 
@@ -55,7 +57,8 @@ def loginTutor(request):
         "username":data['username'],
         "token":str(token[0]),
         "message":message,
-        "currentTime":current_time
+        "currentTime":current_time,
+        "role":role
     }
     return JsonResponse(loginDict,safe=False)
 
@@ -64,13 +67,16 @@ def loginStudent(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=exist(data['username'],data['password'])
     token=" "
+    role="student"
     if isExist:
         user=User.objects.get(username=data['username'])
-        if user.groups.filter(name='tutor').exists():
+        if user.groups.filter(name='student').exists():
             token=Token.objects.get_or_create(user=user)
             message="Login berhasil"
         else:
             message = "Tidak terdaftar sebagai student"
+            isExist=False
+
     else:
         message="Username/Password tidak terdaftar"
     current_time = datetime.now() 
@@ -79,7 +85,8 @@ def loginStudent(request):
         "username":data['username'],
         "token":str(token[0]),
         "message":message,
-        "currentTime":current_time
+        "currentTime":current_time,
+        "role":role
     }
     return JsonResponse(loginDict,safe=False)
 
@@ -96,6 +103,7 @@ def signupTutor(request):
                                     email=data['email'],password=data['password'])
     group = Group.objects.get(name='tutor')
     user.groups.add(group)
+    Location.objects.create(username=user)
     message="Signup berhasil"
     signupDict.update({'message': message})
     return JsonResponse(signupDict,status=200)
@@ -113,14 +121,17 @@ def signupStudent(request):
                                     email=data['email'],password=data['password'])
     group = Group.objects.get(name='student')
     user.groups.add(group)
+    Location.objects.create(username=user)
     message="Signup berhasil"
     signupDict.update({'message': message})
     return JsonResponse(signupDict,status=200)
 
 def profileTutor(request):
     username = request.GET.get('username')
-    user_filter = User.objects.filter(username=username)
+    #user_filter = User.objects.filter(username=username)
     user_get = User.objects.get(username=username)
+
+    loc=Location.objects.get(username=username)
     if not user_get.groups.filter(name='tutor').exists():
         message = "Tidak terdaftar sebagai tutor"        
         profile_dict = {
@@ -128,13 +139,21 @@ def profileTutor(request):
             'message': message
         }
         return JsonResponse(profile_dict,status=404)
-    profile_dict = serializers.serialize('json', user_filter, fields=('username', 'email', 'first_name'))
-    return HttpResponse(profile_dict)
+    profile_dict = {
+        "username":user_get.username,
+        "email":user_get.email,
+        "first_name":user_get.first_name,
+        "latitude":loc.latitude,
+        "longitude":loc.longitude
+    }  
+    return JsonResponse(profile_dict,status=200)
 
 def profileStudent(request):
     username = request.GET.get('username')
-    user_filter = User.objects.filter(username=username)
+    #user_filter = User.objects.filter(username=username)
     user_get = User.objects.get(username=username)
+
+    loc=Location.objects.get(username=username)
     if not user_get.groups.filter(name='student').exists():
         message = "Tidak terdaftar sebagai student"        
         profile_dict = {
@@ -142,5 +161,47 @@ def profileStudent(request):
             'message': message
         }
         return JsonResponse(profile_dict,status=404)
-    profile_dict = serializers.serialize('json', user_filter, fields=('username', 'email', 'first_name'))
-    return HttpResponse(profile_dict)
+    profile_dict = {
+        "username":user_get.username,
+        "email":user_get.email,
+        "first_name":user_get.first_name,
+        "latitude":loc.latitude,
+        "longitude":loc.longitude
+    }  
+    return JsonResponse(profile_dict,status=200)
+
+@csrf_exempt
+def editProfile(request):
+    data=json.loads(request.body.decode('utf-8')) #username,password, first_name, email, latitude, longitude, timestamp
+    editDict={
+        "message":"edit success"
+    }
+    isExist=User.objects.filter(username=data['username']).exists()
+    if isExist:
+        if data['password'] != "":
+            User.objects.filter(username=data['username']).update(
+                password=data['password']
+            )
+        if data['first_name'] != "":
+            User.objects.filter(username=data['username']).update(
+                first_name=data['first_name']
+            )
+        if data['email'] != "":
+            User.objects.filter(username=data['username']).update(
+                email=data['email']
+            )
+        if data['latitude'] != "":
+            Location.objects.filter(username=data['username']).update(
+                latitude=data['latitude']
+            )
+        if data['longitude'] != "":
+            Location.objects.filter(username=data['username']).update(
+                longitude=data['longitude']
+            )
+        if data['timestamp'] != "":
+            Location.objects.filter(username=data['username']).update(
+                timestamp=data['timestamp']
+            )
+        return JsonResponse(editDict,status=200)
+    editDict['message']="edit failed"
+    return JsonResponse(editDict,status=404)
