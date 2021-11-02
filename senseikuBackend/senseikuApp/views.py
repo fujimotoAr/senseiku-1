@@ -128,8 +128,10 @@ def signupStudent(request):
 
 def profileTutor(request):
     username = request.GET.get('username')
-    user_filter = User.objects.filter(username=username)
+    #user_filter = User.objects.filter(username=username)
     user_get = User.objects.get(username=username)
+
+    loc=Location.objects.get(username=username)
     if not user_get.groups.filter(name='tutor').exists():
         message = "Tidak terdaftar sebagai tutor"        
         profile_dict = {
@@ -137,13 +139,21 @@ def profileTutor(request):
             'message': message
         }
         return JsonResponse(profile_dict,status=404)
-    profile_dict = serializers.serialize('json', user_filter, fields=('username', 'email', 'first_name'))
-    return HttpResponse(profile_dict)
+    profile_dict = {
+        "username":user_get.username,
+        "email":user_get.email,
+        "first_name":user_get.first_name,
+        "latitude":loc.latitude,
+        "longitude":loc.longitude
+    }  
+    return JsonResponse(profile_dict,status=200)
 
 def profileStudent(request):
     username = request.GET.get('username')
-    user_filter = User.objects.filter(username=username)
+    #user_filter = User.objects.filter(username=username)
     user_get = User.objects.get(username=username)
+
+    loc=Location.objects.get(username=username)
     if not user_get.groups.filter(name='student').exists():
         message = "Tidak terdaftar sebagai student"        
         profile_dict = {
@@ -151,8 +161,14 @@ def profileStudent(request):
             'message': message
         }
         return JsonResponse(profile_dict,status=404)
-    profile_dict = serializers.serialize('json', user_filter, fields=('username', 'email', 'first_name'))
-    return HttpResponse(profile_dict)
+    profile_dict = {
+        "username":user_get.username,
+        "email":user_get.email,
+        "first_name":user_get.first_name,
+        "latitude":loc.latitude,
+        "longitude":loc.longitude
+    }  
+    return JsonResponse(profile_dict,status=200)
 
 @csrf_exempt
 def editProfile(request):
