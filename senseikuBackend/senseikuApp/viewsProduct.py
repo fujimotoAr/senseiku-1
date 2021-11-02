@@ -258,10 +258,6 @@ def getMyCart(request):
             distance = distance * 6371000/1000
             price = 5000*distance[0][1]
             key['transport_price'] = price
-            key.pop('student_latitude')
-            key.pop('student_longitude')
-            key.pop('tutor_latitude')
-            key.pop('tutor_longitude')
     else:
         cartList = {'student_username': data, 'message': 'empty cart'}
     return JsonResponse(cartList, safe=False)
