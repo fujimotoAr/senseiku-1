@@ -144,7 +144,8 @@ def profileTutor(request):
         "email":user_get.email,
         "first_name":user_get.first_name,
         "latitude":loc.latitude,
-        "longitude":loc.longitude
+        "longitude":loc.longitude,
+        "timestamp": loc.timestamp
     }  
     return JsonResponse(profile_dict,status=200)
 
@@ -166,7 +167,8 @@ def profileStudent(request):
         "email":user_get.email,
         "first_name":user_get.first_name,
         "latitude":loc.latitude,
-        "longitude":loc.longitude
+        "longitude":loc.longitude,
+        "timestamp": loc.timestamp
     }  
     return JsonResponse(profile_dict,status=200)
 

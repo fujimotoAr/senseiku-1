@@ -258,7 +258,7 @@ def getMyCart(request):
                 student_loc_rad = [radians(_) for _ in student_loc]
                 distance = haversine_distances([tutor_loc_rad, student_loc_rad])
                 distance = distance * 6371000/1000
-                price = 5000*distance[0][1]
+                price = round(5000*distance[0][1])
             key['transport_price'] = price
     else:
         cartList = {'student_username': data, 'message': 'empty cart'}
