@@ -349,6 +349,9 @@ def getTransactions(request):
         transactionList = list(Transaction.objects.filter(student_username=data).values(
             'id','total_price','timestamp','status'
         ))
+        transactionList.append(list(Cart.objects.filter(student_username=data).values(
+            'course_id', 'total_price'
+        )))
     else:
         transactionList = {'student_username': data, 'message': 'no transaction'}
     return JsonResponse(transactionList, safe=False)
