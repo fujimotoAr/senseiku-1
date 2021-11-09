@@ -284,6 +284,7 @@ def getMyCart(request):
         cartList = {'student_username': data, 'message': 'empty cart'}
     return JsonResponse(cartList, safe=False)
 
+# delete all cart
 def deleteMyCart(request):
     data = request.GET.get('username')
     output={
@@ -294,6 +295,19 @@ def deleteMyCart(request):
         return JsonResponse(output,status=200)
     else:
         output['message']="already empty"
+        return JsonResponse(output,status=404)
+
+# delete only one cart
+def deleteCart(request):
+    data = request.GET.get('id')
+    output={
+        "message":"remove success"
+    }
+    if Cart.objects.filter(id=data).exists():
+        Cart.objects.filter(id=data).delete()
+        return JsonResponse(output,status=200)
+    else:
+        output['message']="cart deleted"
         return JsonResponse(output,status=404)
 
 @csrf_exempt
@@ -338,6 +352,7 @@ def addTransaction(request):
             timestamp=data['timestamp'],
             total_price=sumResult
         )
+        Cart.objects.filter(student_username=data['student_username']).delete()
         return JsonResponse(statusDict, status=200)
     except IntegrityError:
         statusDict['message']="failed"

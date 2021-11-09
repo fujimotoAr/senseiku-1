@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 class Phone(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
     username=models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
-    phone_number=models.CharField(max_length=100)
+    phone_number=models.CharField(max_length=100, null=True)
 
 class Location(models.Model):
     username=models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
