@@ -29,6 +29,7 @@ urlpatterns = [
     path('updateSchedule/',viewsProduct.updateSchedule,name='updateSchedule'),
 
     path('addCart/',viewsProduct.addCart,name='addCart'),
+    path('addTransaction/',viewsProduct.addTransaction,name="addTransaction"),
     path('myCart/',viewsProduct.getMyCart,name='getMyCart'),
     path('deleteMyCart/',viewsProduct.deleteMyCart,name="deleteMyCart"),
     path('tracker/',viewsProduct.tracker,name="tracker")

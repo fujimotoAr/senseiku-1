@@ -1,8 +1,8 @@
 from json.decoder import JSONDecodeError
 from django.contrib.auth.models import User
-from django.db.models import fields, query
+from django.db.models import fields, query, Sum
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from .models import Course, Location, Schedule, Cart, Tracker, Review 
+from .models import Course, Location, Schedule, Cart, Tracker, Review, Transaction
 from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
@@ -314,6 +314,29 @@ def tracker(request):
             username_id=trackerDict['username'],
             event=trackerDict['event'],
             timestamp=trackerDict['timestamp']
+        )
+        return JsonResponse(statusDict, status=200)
+    except IntegrityError:
+        statusDict['message']="failed"
+        return JsonResponse(statusDict, status=404)
+        
+@csrf_exempt
+def addTransaction(request):
+    data=json.loads(request.body.decode('utf-8'))
+    transactionTotalPrice=Cart.objects.filter(student_username=data['student_username']).aggregate(Sum('total_price'))
+
+    sumResult=transactionTotalPrice.get('total_price__sum')
+    if sumResult==None:
+        sumResult=0
+
+    statusDict={
+        "message":"success"
+    }
+    try:
+        Transaction.objects.create(
+            student_username_id=data['student_username'],
+            timestamp=data['timestamp'],
+            total_price=sumResult
         )
         return JsonResponse(statusDict, status=200)
     except IntegrityError:
