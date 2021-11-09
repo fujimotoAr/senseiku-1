@@ -42,6 +42,7 @@ class Transaction(models.Model):
     student_username = models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
     timestamp = models.IntegerField()
     total_price=models.IntegerField(default=0)
+    status = models.CharField(max_length=100, default="not verified")
 
 class Cart(models.Model):
     id = models.AutoField(primary_key=True,unique=True)

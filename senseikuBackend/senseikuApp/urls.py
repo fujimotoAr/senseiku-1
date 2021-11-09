@@ -30,6 +30,8 @@ urlpatterns = [
 
     path('addCart/',viewsProduct.addCart,name='addCart'),
     path('addTransaction/',viewsProduct.addTransaction,name="addTransaction"),
+    path('getTransaction/',viewsProduct.getTransactions,name="getTransaction"),
+    path('confirmPayment/',viewsProduct.confirmPayment,name="confirmPayment"),
     path('myCart/',viewsProduct.getMyCart,name='getMyCart'),
     path('deleteMyCart/',viewsProduct.deleteMyCart,name="deleteMyCart"),
     path('tracker/',viewsProduct.tracker,name="tracker")

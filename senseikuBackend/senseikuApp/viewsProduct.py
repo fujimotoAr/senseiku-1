@@ -342,4 +342,34 @@ def addTransaction(request):
     except IntegrityError:
         statusDict['message']="failed"
         return JsonResponse(statusDict, status=404)
+
+def getTransactions(request):
+    data = request.GET.get('username')
+    if Transaction.objects.filter(student_username=data).exists():
+        transactionList = list(Transaction.objects.filter(student_username=data).values(
+            'id','total_price','timestamp','status'
+        ))
+    else:
+        transactionList = {'student_username': data, 'message': 'no transaction'}
+    return JsonResponse(transactionList, safe=False)
+
+@csrf_exempt
+def confirmPayment(request):
+    data=json.loads(request.body.decode('utf-8'))
+    confirmDict={
+        "message":""
+    }
+    try:
+        Transaction.objects.filter(id=data['id']).update(
+            status="pending"
+        )
+        confirmDict.update({
+            "message":"system is checking payment"
+        })
+        return JsonResponse(confirmDict)
+    except IntegrityError:
+        confirmDict.update({
+            "message":"Payment failed, id not exist"
+        })
+        return JsonResponse(confirmDict, status=404)
     
