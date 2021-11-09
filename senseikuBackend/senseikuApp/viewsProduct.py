@@ -2,7 +2,7 @@ from json.decoder import JSONDecodeError
 from django.contrib.auth.models import User
 from django.db.models import fields, query
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from .models import Course, Schedule, Cart, Tracker, Review 
+from .models import Course, Location, Schedule, Cart, Tracker, Review 
 from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
@@ -206,18 +206,55 @@ def addCart(request):
     cartDict = {
         "student_username": data['student_username'],
         "schedule_id": data['schedule_id'],
-        "course_id": data['course_id'],
-        "message": "success"
+        "course_id": data['course_id']
     }
+    tutor_username = ''
+    student_latitude = 0
+    student_longitude = 0
+    tutor_latitude = 0
+    tutor_longitude = 0
+    price = 0
+    course_list = list(Course.objects.filter(id=cartDict['course_id']).values(
+        'pricing', 'tutor_username'
+    ))
+    for key in course_list:
+        cartDict['course_price'] = key['pricing']
+        tutor_username = key['tutor_username']
+    student_location = list(Location.objects.filter(username=data['student_username']).values(
+        'latitude', 'longitude'
+    ))
+    for key in student_location:
+        student_latitude = key['latitude']
+        student_longitude = key['longitude']
+    tutor_location = list(Location.objects.filter(username=tutor_username).values(
+        'latitude', 'longitude'
+    ))
+    for key in tutor_location:
+        tutor_latitude = key['latitude']
+        tutor_longitude = key['longitude']
+    if tutor_latitude and tutor_longitude and student_latitude and student_longitude is not None:
+        tutor_loc = [tutor_latitude, tutor_longitude]
+        student_loc = [student_latitude, student_longitude]
+        tutor_loc_rad = [radians(_) for _ in tutor_loc]
+        student_loc_rad = [radians(_) for _ in student_loc]
+        distance = haversine_distances([tutor_loc_rad, student_loc_rad])
+        distance = distance * 6371000/1000
+        price = round(5000*distance[0][1])
+    cartDict['transport_price'] = price
+    cartDict['total_price'] = cartDict['course_price'] + cartDict['transport_price']
     try:
         Cart.objects.create(
             student_username_id = cartDict['student_username'],
             schedule_id_id = cartDict['schedule_id'],
             course_id_id = cartDict['course_id'],
+            course_price = cartDict['course_price'],
+            transport_price = cartDict['transport_price'],
+            total_price = cartDict['total_price']
         )
         Schedule.objects.filter(id=data['schedule_id']).update(
             availability = False
         )
+        cartDict['message'] = "success"
         return JsonResponse(cartDict)
     except IntegrityError:
         cartDict['message'] = "failed"
@@ -228,14 +265,11 @@ def getMyCart(request):
     if Cart.objects.filter(student_username=data).exists():
         cartList = list(Cart.objects.filter(student_username=data).values(
             'id','student_username','course_id','course_id__course_name',
-            'course_id__description','course_id__pricing',
+            'course_id__description','course_price',
             'course_id__tutor_username','course_id__tutor_username__first_name',
             'schedule_id','schedule_id__date',
             'schedule_id__hour_start','schedule_id__hour_finish',
-            'course_id__tutor_username__location__latitude',
-            'course_id__tutor_username__location__longitude',
-            'student_username__location__latitude',
-            'student_username__location__longitude',
+            'transport_price','total_price'
         ))
         for key in cartList:
             key['course_name'] = key.pop('course_id__course_name')
@@ -246,20 +280,6 @@ def getMyCart(request):
             key['date'] = key.pop('schedule_id__date')
             key['hour_start'] = key.pop('schedule_id__hour_start')
             key['hour_finish'] = key.pop('schedule_id__hour_finish')
-            tutor_latitude = key.pop('course_id__tutor_username__location__latitude')
-            tutor_longitude = key.pop('course_id__tutor_username__location__longitude')
-            student_latitude = key.pop('student_username__location__latitude')
-            student_longitude = key.pop('student_username__location__longitude')
-            price = 0
-            if tutor_latitude and tutor_longitude and student_latitude and student_longitude is not None:
-                tutor_loc = [tutor_latitude, tutor_longitude]
-                student_loc = [student_latitude, student_longitude]
-                tutor_loc_rad = [radians(_) for _ in tutor_loc]
-                student_loc_rad = [radians(_) for _ in student_loc]
-                distance = haversine_distances([tutor_loc_rad, student_loc_rad])
-                distance = distance * 6371000/1000
-                price = round(5000*distance[0][1])
-            key['transport_price'] = price
     else:
         cartList = {'student_username': data, 'message': 'empty cart'}
     return JsonResponse(cartList, safe=False)

@@ -48,8 +48,9 @@ class Cart(models.Model):
     student_username = models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
     course_id = models.ForeignKey(Course,on_delete=models.CASCADE)
     schedule_id = models.ForeignKey(Schedule,on_delete=models.CASCADE)
-    #total_course_price=models.ForeignKey(Course,to_field="pricing",db_column="pricing",default=0,on_delete=models.CASCADE)
-    total_transport_price=models.IntegerField(default=0)
+    course_price = models.IntegerField(default=0)
+    transport_price = models.IntegerField(default=0)
+    total_price = models.IntegerField(default=0)
     #transaction_id=models.ForeignKey(Transaction, on_delete=models.CASCADE)
 
 class Tracker(models.Model):
