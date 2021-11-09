@@ -1,8 +1,13 @@
+from enum import unique
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 
+class Phone(models.Model):
+    id = models.AutoField(primary_key=True,unique=True)
+    username=models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
+    phone_number=models.CharField(max_length=100)
 
 class Location(models.Model):
     username=models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
@@ -32,11 +37,20 @@ class Review(models.Model):
     review = models.CharField(max_length=1000)
     rating = models.FloatField(default=0.0)
 
+class Transaction(models.Model):
+    id=models.AutoField(primary_key=True,unique=True)
+    student_username = models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
+    timestamp = models.IntegerField()
+    total_price=models.IntegerField(default=0)
+
 class Cart(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
     student_username = models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
     course_id = models.ForeignKey(Course,on_delete=models.CASCADE)
     schedule_id = models.ForeignKey(Schedule,on_delete=models.CASCADE)
+    #total_course_price=models.ForeignKey(Course,to_field="pricing",db_column="pricing",default=0,on_delete=models.CASCADE)
+    total_transport_price=models.IntegerField(default=0)
+    #transaction_id=models.ForeignKey(Transaction, on_delete=models.CASCADE)
 
 class Tracker(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
