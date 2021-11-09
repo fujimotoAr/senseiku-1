@@ -32,6 +32,7 @@ urlpatterns = [
     path('addTransaction/',viewsProduct.addTransaction,name="addTransaction"),
     path('getTransaction/',viewsProduct.getTransactions,name="getTransaction"),
     path('confirmPayment/',viewsProduct.confirmPayment,name="confirmPayment"),
+    path('confirmFinish/', viewsProduct.confirmFinish, name="confirmFinish"),
     path('myCart/',viewsProduct.getMyCart,name='getMyCart'),
     path('deleteMyCart/',viewsProduct.deleteMyCart,name="deleteMyCart"),
     path('tracker/',viewsProduct.tracker,name="tracker")

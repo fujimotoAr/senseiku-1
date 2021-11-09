@@ -252,7 +252,8 @@ def addCart(request):
             total_price = cartDict['total_price']
         )
         Schedule.objects.filter(id=data['schedule_id']).update(
-            availability = False
+            availability = False,
+            course_id = cartDict['course_id']
         )
         cartDict['message'] = "success"
         return JsonResponse(cartDict)
@@ -274,7 +275,6 @@ def getMyCart(request):
         for key in cartList:
             key['course_name'] = key.pop('course_id__course_name')
             key['description'] = key.pop('course_id__description')
-            key['pricing'] = key.pop('course_id__pricing')
             key['tutor_username'] = key.pop('course_id__tutor_username')
             key['first_name'] = key.pop('course_id__tutor_username__first_name')
             key['date'] = key.pop('schedule_id__date')
@@ -367,7 +367,8 @@ def confirmPayment(request):
     }
     try:
         Transaction.objects.filter(id=data['id']).update(
-            status="pending"
+            status="pending",
+            gopay=data['gopay']
         )
         confirmDict.update({
             "message":"system is checking payment"
@@ -376,6 +377,25 @@ def confirmPayment(request):
     except IntegrityError:
         confirmDict.update({
             "message":"Payment failed, id not exist"
+        })
+        return JsonResponse(confirmDict, status=404)
+
+def confirmFinish(request):
+    data = request.GET.get('id')
+    confirmDict={
+        "message":""
+    }
+    try:
+        Schedule.objects.filter(id=data).update(
+            finish=True
+        )
+        confirmDict.update({
+            "message": "Teaching finished"
+        })
+        return JsonResponse(confirmDict)
+    except IntegrityError:
+        confirmDict.update({
+            "message": "Confirmation failed"
         })
         return JsonResponse(confirmDict, status=404)
     

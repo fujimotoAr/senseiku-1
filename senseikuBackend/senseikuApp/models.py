@@ -29,6 +29,8 @@ class Schedule(models.Model):
     hour_start = models.CharField(max_length=100,default="7:30")
     hour_finish = models.CharField(max_length=100,default="9:30")
     availability = models.BooleanField(default=True)
+    course_id = models.IntegerField(null=True)
+    finish = models.BooleanField(default=False)
 
 class Review(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
@@ -43,6 +45,7 @@ class Transaction(models.Model):
     timestamp = models.IntegerField()
     total_price=models.IntegerField(default=0)
     status = models.CharField(max_length=100, default="not verified")
+    gopay = models.CharField(max_length=300, default="")
 
 class Cart(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
