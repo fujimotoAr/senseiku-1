@@ -352,7 +352,9 @@ def addTransaction(request):
             timestamp=data['timestamp'],
             total_price=sumResult
         )
-        Cart.objects.filter(student_username=data['student_username']).delete()
+        Cart.objects.filter(student_username=data['student_username']).update(
+            time_checked_out=data['timestamp']
+        )
         return JsonResponse(statusDict, status=200)
     except IntegrityError:
         statusDict['message']="failed"
@@ -362,14 +364,18 @@ def getTransactions(request):
     data = request.GET.get('username')
     if Transaction.objects.filter(student_username=data).exists():
         transactionList = list(Transaction.objects.filter(student_username=data).values(
-            'id','total_price','timestamp','status'
+            'id','total_price','timestamp','status',
         ))
-        courseList = list(Cart.objects.filter(student_username=data).values(
-            'course_id', 'course_id__course_name','total_price'
-        ))
-        for key in courseList:
-            key['course_name'] = key.pop('course_id__course_name')
-        transactionList.append(courseList)
+        time = []
+        for key in transactionList:
+            time.append(key['timestamp'])
+        length = len(transactionList)
+        for key in range(length):
+            transactionList[key].update({
+                'courses': list(Cart.objects.filter(time_checked_out=time[key]).values(
+                    'course_id', 'course_id__course_name','total_price'
+                ))
+            })
     else:
         transactionList = {'student_username': data, 'message': 'no transaction'}
     return JsonResponse(transactionList, safe=False)

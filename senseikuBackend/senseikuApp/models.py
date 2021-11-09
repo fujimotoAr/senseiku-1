@@ -55,6 +55,7 @@ class Cart(models.Model):
     course_price = models.IntegerField(default=0)
     transport_price = models.IntegerField(default=0)
     total_price = models.IntegerField(default=0)
+    time_checked_out = models.IntegerField(null=True)
     #transaction_id=models.ForeignKey(Transaction, on_delete=models.CASCADE)
 
 class Tracker(models.Model):
