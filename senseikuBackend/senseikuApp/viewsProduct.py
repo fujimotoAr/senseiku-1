@@ -372,7 +372,7 @@ def getTransactions(request):
         length = len(transactionList)
         for key in range(length):
             transactionList[key].update({
-                'courses': list(Cart.objects.filter(time_checked_out=time[key], student_username=data['username']).values(
+                'courses': list(Cart.objects.filter(time_checked_out=time[key], student_username=data).values(
                     'course_id', 'course_id__course_name','total_price','schedule_id'
                 ))
             })
