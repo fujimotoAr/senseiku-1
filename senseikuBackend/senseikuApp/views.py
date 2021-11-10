@@ -123,6 +123,7 @@ def signupStudent(request):
     group = Group.objects.get(name='student')
     user.groups.add(group)
     Location.objects.create(username=user)
+    Phone.objects.create(username=user)
     message="Signup berhasil"
     signupDict.update({'message': message})
     return JsonResponse(signupDict,status=200)
@@ -167,6 +168,7 @@ def profileStudent(request):
     profile_dict = {
         "username":user_get.username,
         "email":user_get.email,
+        "phone": Phone.objects.get(username=username).phone_number,
         "first_name":user_get.first_name,
         "latitude":loc.latitude,
         "longitude":loc.longitude,
