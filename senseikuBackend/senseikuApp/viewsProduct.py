@@ -364,7 +364,7 @@ def getTransactions(request):
     data = request.GET.get('username')
     if Transaction.objects.filter(student_username=data).exists():
         transactionList = list(Transaction.objects.filter(student_username=data).values(
-            'id','total_price','timestamp','status',
+            'id','total_price','timestamp','status','gopay'
         ))
         time = []
         for key in transactionList:
@@ -373,9 +373,16 @@ def getTransactions(request):
         for key in range(length):
             transactionList[key].update({
                 'courses': list(Cart.objects.filter(time_checked_out=time[key]).values(
-                    'course_id', 'course_id__course_name','total_price'
+                    'course_id', 'course_id__course_name','total_price','schedule_id'
                 ))
             })
+            x=transactionList[key].get('courses')
+            for i in x:
+                y=Schedule.objects.filter(id=i.get('schedule_id')).values('finish')
+                y=y[0].get('finish')
+                i['finish']=y
+                
+
     else:
         transactionList = {'student_username': data, 'message': 'no transaction'}
     return JsonResponse(transactionList, safe=False)
