@@ -34,7 +34,7 @@ def getMySchedule(request):
     data = request.GET.get('username')
     scheduleList = Schedule.objects.filter(tutor_username=data)
     scheduleData = serializers.serialize(
-        'json', scheduleList, fields=('id','tutor_username','date','hour_start','hour_finish','availability')
+        'json', scheduleList, fields=('id','tutor_username','date','hour_start','hour_finish','availability','finish')
     )
     return HttpResponse(scheduleData)
 
