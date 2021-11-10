@@ -270,7 +270,7 @@ def getMyCart(request):
             'course_id__tutor_username','course_id__tutor_username__first_name',
             'schedule_id','schedule_id__date',
             'schedule_id__hour_start','schedule_id__hour_finish',
-            'transport_price','total_price'
+            'transport_price','total_price', 'time_checked_out'
         ))
         for key in cartList:
             key['course_name'] = key.pop('course_id__course_name')
