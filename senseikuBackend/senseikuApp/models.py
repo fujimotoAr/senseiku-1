@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 class Phone(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
     username=models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
-    phone_number=models.CharField(max_length=100)
+    phone_number=models.CharField(max_length=100, null=True)
 
 class Location(models.Model):
     username=models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
@@ -29,6 +29,8 @@ class Schedule(models.Model):
     hour_start = models.CharField(max_length=100,default="7:30")
     hour_finish = models.CharField(max_length=100,default="9:30")
     availability = models.BooleanField(default=True)
+    course_id = models.IntegerField(null=True)
+    finish = models.BooleanField(default=False)
 
 class Review(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
@@ -42,6 +44,8 @@ class Transaction(models.Model):
     student_username = models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
     timestamp = models.IntegerField()
     total_price=models.IntegerField(default=0)
+    status = models.CharField(max_length=100, default="not verified")
+    gopay = models.CharField(max_length=300, default="")
 
 class Cart(models.Model):
     id = models.AutoField(primary_key=True,unique=True)
@@ -51,6 +55,7 @@ class Cart(models.Model):
     course_price = models.IntegerField(default=0)
     transport_price = models.IntegerField(default=0)
     total_price = models.IntegerField(default=0)
+    time_checked_out = models.IntegerField(null=True)
     #transaction_id=models.ForeignKey(Transaction, on_delete=models.CASCADE)
 
 class Tracker(models.Model):

@@ -1,8 +1,8 @@
 from json.decoder import JSONDecodeError
 from django.contrib.auth.models import User
-from django.db.models import fields, query
+from django.db.models import fields, query, Sum
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from .models import Course, Location, Schedule, Cart, Tracker, Review 
+from .models import Course, Location, Schedule, Cart, Tracker, Review, Transaction
 from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
@@ -252,7 +252,8 @@ def addCart(request):
             total_price = cartDict['total_price']
         )
         Schedule.objects.filter(id=data['schedule_id']).update(
-            availability = False
+            availability = False,
+            course_id = cartDict['course_id']
         )
         cartDict['message'] = "success"
         return JsonResponse(cartDict)
@@ -269,12 +270,11 @@ def getMyCart(request):
             'course_id__tutor_username','course_id__tutor_username__first_name',
             'schedule_id','schedule_id__date',
             'schedule_id__hour_start','schedule_id__hour_finish',
-            'transport_price','total_price'
+            'transport_price','total_price', 'time_checked_out'
         ))
         for key in cartList:
             key['course_name'] = key.pop('course_id__course_name')
             key['description'] = key.pop('course_id__description')
-            key['pricing'] = key.pop('course_id__pricing')
             key['tutor_username'] = key.pop('course_id__tutor_username')
             key['first_name'] = key.pop('course_id__tutor_username__first_name')
             key['date'] = key.pop('schedule_id__date')
@@ -284,6 +284,7 @@ def getMyCart(request):
         cartList = {'student_username': data, 'message': 'empty cart'}
     return JsonResponse(cartList, safe=False)
 
+# delete all cart
 def deleteMyCart(request):
     data = request.GET.get('username')
     output={
@@ -294,6 +295,19 @@ def deleteMyCart(request):
         return JsonResponse(output,status=200)
     else:
         output['message']="already empty"
+        return JsonResponse(output,status=404)
+
+# delete only one cart
+def deleteCart(request):
+    data = request.GET.get('id')
+    output={
+        "message":"remove success"
+    }
+    if Cart.objects.filter(id=data).exists():
+        Cart.objects.filter(id=data).delete()
+        return JsonResponse(output,status=200)
+    else:
+        output['message']="cart deleted"
         return JsonResponse(output,status=404)
 
 @csrf_exempt
@@ -319,4 +333,97 @@ def tracker(request):
     except IntegrityError:
         statusDict['message']="failed"
         return JsonResponse(statusDict, status=404)
+        
+@csrf_exempt
+def addTransaction(request):
+    data=json.loads(request.body.decode('utf-8'))
+    transactionTotalPrice=Cart.objects.filter(student_username=data['student_username']).aggregate(Sum('total_price'))
+
+    sumResult=transactionTotalPrice.get('total_price__sum')
+    if sumResult==None:
+        sumResult=0
+
+    statusDict={
+        "message":"success"
+    }
+    try:
+        Transaction.objects.create(
+            student_username_id=data['student_username'],
+            timestamp=data['timestamp'],
+            total_price=sumResult
+        )
+        Cart.objects.filter(student_username=data['student_username']).update(
+            time_checked_out=data['timestamp']
+        )
+        return JsonResponse(statusDict, status=200)
+    except IntegrityError:
+        statusDict['message']="failed"
+        return JsonResponse(statusDict, status=404)
+
+def getTransactions(request):
+    data = request.GET.get('username')
+    if Transaction.objects.filter(student_username=data).exists():
+        transactionList = list(Transaction.objects.filter(student_username=data).values(
+            'id','total_price','timestamp','status','gopay'
+        ))
+        time = []
+        for key in transactionList:
+            time.append(key['timestamp'])
+        length = len(transactionList)
+        for key in range(length):
+            transactionList[key].update({
+                'courses': list(Cart.objects.filter(time_checked_out=time[key], student_username=data['username']).values(
+                    'course_id', 'course_id__course_name','total_price','schedule_id'
+                ))
+            })
+            x=transactionList[key].get('courses')
+            for i in x:
+                y=Schedule.objects.filter(id=i.get('schedule_id')).values('finish')
+                y=y[0].get('finish')
+                i['finish']=y
+                
+
+    else:
+        transactionList = {'student_username': data, 'message': 'no transaction'}
+    return JsonResponse(transactionList, safe=False)
+
+@csrf_exempt
+def confirmPayment(request):
+    data=json.loads(request.body.decode('utf-8'))
+    confirmDict={
+        "message":""
+    }
+    try:
+        Transaction.objects.filter(id=data['id']).update(
+            status="pending",
+            gopay=data['gopay']
+        )
+        confirmDict.update({
+            "message":"system is checking payment"
+        })
+        return JsonResponse(confirmDict)
+    except IntegrityError:
+        confirmDict.update({
+            "message":"Payment failed, id not exist"
+        })
+        return JsonResponse(confirmDict, status=404)
+
+def confirmFinish(request):
+    data = request.GET.get('id')
+    confirmDict={
+        "message":""
+    }
+    try:
+        Schedule.objects.filter(id=data).update(
+            finish=True
+        )
+        confirmDict.update({
+            "message": "Teaching finished"
+        })
+        return JsonResponse(confirmDict)
+    except IntegrityError:
+        confirmDict.update({
+            "message": "Confirmation failed"
+        })
+        return JsonResponse(confirmDict, status=404)
     

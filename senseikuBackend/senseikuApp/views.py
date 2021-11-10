@@ -2,7 +2,7 @@ from json.decoder import JSONDecodeError
 from django.contrib import auth
 from django.core.checks import messages
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from .models import Course, Location
+from .models import Course, Location, Phone
 from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
@@ -104,6 +104,7 @@ def signupTutor(request):
     group = Group.objects.get(name='tutor')
     user.groups.add(group)
     Location.objects.create(username=user)
+    Phone.objects.create(username=user)
     message="Signup berhasil"
     signupDict.update({'message': message})
     return JsonResponse(signupDict,status=200)
@@ -122,6 +123,7 @@ def signupStudent(request):
     group = Group.objects.get(name='student')
     user.groups.add(group)
     Location.objects.create(username=user)
+    Phone.objects.create(username=user)
     message="Signup berhasil"
     signupDict.update({'message': message})
     return JsonResponse(signupDict,status=200)
@@ -142,6 +144,7 @@ def profileTutor(request):
     profile_dict = {
         "username":user_get.username,
         "email":user_get.email,
+        "phone": Phone.objects.get(username=username).phone_number,
         "first_name":user_get.first_name,
         "latitude":loc.latitude,
         "longitude":loc.longitude,
@@ -165,6 +168,7 @@ def profileStudent(request):
     profile_dict = {
         "username":user_get.username,
         "email":user_get.email,
+        "phone": Phone.objects.get(username=username).phone_number,
         "first_name":user_get.first_name,
         "latitude":loc.latitude,
         "longitude":loc.longitude,
@@ -203,6 +207,10 @@ def editProfile(request):
         if data['timestamp'] != "":
             Location.objects.filter(username=data['username']).update(
                 timestamp=data['timestamp']
+            )
+        if data['phone'] != "":
+            Phone.objects.filter(username=data['username']).update(
+                phone_number=data['phone']
             )
         return JsonResponse(editDict,status=200)
     editDict['message']="edit failed"
