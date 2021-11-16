@@ -433,7 +433,8 @@ def getWishlist(request):
         wishlistList=list(Wishlist.objects.filter(student_username=data).values('course_id'))
         courseList=[]
         for i in wishlistList:
-            courseList.append((Course.objects.filter(id=i.get('course_id')).values('id','course_name'))[0])
+            courseList.append((Course.objects.filter(id=i.get('course_id')) \
+                .values('id','course_name','description','pricing','tutor_username__first_name'))[0])
         outputDict={
             "username":data,
             "course_list":(courseList),
@@ -446,3 +447,33 @@ def getWishlist(request):
         }
     return JsonResponse(outputDict,status=404)
     
+@csrf_exempt
+def addWishlist(request):
+    data = json.loads(request.body.decode('utf-8'))
+    wishlist_dict = {
+        'course_id': data['course_id'],
+        'username': data['username'],
+        'message': 'success'
+    }
+    try:
+        Wishlist.objects.create(
+            course_id_id = wishlist_dict['course_id'],
+            student_username_id = wishlist_dict['username']
+        )
+        return JsonResponse(wishlist_dict, status=200)
+    except IntegrityError:
+        wishlist_dict['message'] = 'failed'
+        return JsonResponse(wishlist_dict, status=404)
+
+@csrf_exempt
+def deleteWishlist(request):
+    data = request.GET.copy()
+    output = {'message': 'remove success'}
+    if Wishlist.objects.filter(student_username=data['username'],
+                               course_id=data['course_id']).exists():
+        Wishlist.objects.filter(student_username=data['username'],
+                                course_id=data['course_id']).delete()
+        return JsonResponse(output, status=200)
+    else:
+        output['message'] = "wishlist doesn't exist"
+        return JsonResponse(output, status=404)

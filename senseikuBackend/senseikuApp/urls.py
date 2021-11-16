@@ -37,7 +37,7 @@ urlpatterns = [
     path('deleteMyCart/',viewsProduct.deleteMyCart,name="deleteMyCart"),
     path('deleteCart/', viewsProduct.deleteCart,name="deleteCart"),
     path('tracker/',viewsProduct.tracker,name="tracker"),
-    path('getWishlist/',viewsProduct.getWishlist,name="getWishlist")
-
-
+    path('getWishlist/',viewsProduct.getWishlist,name="getWishlist"),
+    path('addWishlist/',viewsProduct.addWishlist,name="addWishlist"),
+    path('deleteWishlist/',viewsProduct.deleteWishlist,name="deleteWishlist")
 ]
