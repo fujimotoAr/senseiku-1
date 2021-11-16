@@ -65,3 +65,7 @@ class Tracker(models.Model):
     event = models.IntegerField()
     timestamp = models.IntegerField()
 
+class Wishlist(models.Model):
+    id = models.AutoField(primary_key=True,unique=True)
+    student_username = models.ForeignKey(User,to_field="username",db_column="username",default="",on_delete=models.CASCADE)
+    course_id = models.ForeignKey(Course,on_delete=models.CASCADE)

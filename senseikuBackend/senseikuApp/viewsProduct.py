@@ -2,7 +2,7 @@ from json.decoder import JSONDecodeError
 from django.contrib.auth.models import User
 from django.db.models import fields, query, Sum
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from .models import Course, Location, Schedule, Cart, Tracker, Review, Transaction
+from .models import Course, Location, Schedule, Cart, Tracker, Review, Transaction, Wishlist
 from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
@@ -426,4 +426,23 @@ def confirmFinish(request):
             "message": "Confirmation failed"
         })
         return JsonResponse(confirmDict, status=404)
+
+def getWishlist(request):
+    data = request.GET.get('username')
+    if Wishlist.objects.filter(student_username=data).exists():
+        wishlistList=list(Wishlist.objects.filter(student_username=data).values('course_id'))
+        courseList=[]
+        for i in wishlistList:
+            courseList.append(list(Course.objects.filter(id=i.get('course_id')).values('id','course_name')))
+        outputDict={
+            "username":data,
+            "course_list":(courseList),
+            "message":"success"
+        }
+        return JsonResponse(outputDict,status=200)
+    outputDict={
+            "username":data,
+            "message":"failed"
+        }
+    return JsonResponse(outputDict,status=404)
     
