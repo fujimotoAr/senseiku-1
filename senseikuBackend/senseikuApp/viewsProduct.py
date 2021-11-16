@@ -433,7 +433,7 @@ def getWishlist(request):
         wishlistList=list(Wishlist.objects.filter(student_username=data).values('course_id'))
         courseList=[]
         for i in wishlistList:
-            courseList.append(list(Course.objects.filter(id=i.get('course_id')).values('id','course_name')))
+            courseList.append((Course.objects.filter(id=i.get('course_id')).values('id','course_name'))[0])
         outputDict={
             "username":data,
             "course_list":(courseList),
