@@ -39,5 +39,7 @@ urlpatterns = [
     path('tracker/',viewsProduct.tracker,name="tracker"),
     path('getWishlist/',viewsProduct.getWishlist,name="getWishlist"),
     path('addWishlist/',viewsProduct.addWishlist,name="addWishlist"),
-    path('deleteWishlist/',viewsProduct.deleteWishlist,name="deleteWishlist")
+    path('deleteWishlist/',viewsProduct.deleteWishlist,name="deleteWishlist"),
+    path('adminGetTransactions/',viewsProduct.adminGetTransactions,name="adminGetTransactions"),
+    path('editStatus/',viewsProduct.editStatus,name="editStatus")
 ]

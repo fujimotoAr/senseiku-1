@@ -477,3 +477,39 @@ def deleteWishlist(request):
     else:
         output['message'] = "wishlist doesn't exist"
         return JsonResponse(output, status=404)
+
+def adminGetTransactions(request):
+    data = request.GET.get('username')
+    if data == 'admin':
+        transactionList = list(Transaction.objects.values(
+            'id','student_username','total_price','timestamp','status','gopay'
+        ))
+        for i in range(len(transactionList)):
+            courses = list(Cart.objects.filter(
+                    time_checked_out=transactionList[i]['timestamp'],
+                    student_username=transactionList[i]['student_username']
+                ).values('course_id', 'total_price', 'schedule_id')
+            )
+            for course in courses:
+                tutor = list(Course.objects.filter(id=course['course_id']).values(
+                    'tutor_username__first_name', 'tutor_username__phone__phone_number'
+                ))
+                course['tutor_name'] = tutor[0]['tutor_username__first_name']
+                course['phone_number'] = tutor[0]['tutor_username__phone__phone_number']
+                course['finish'] = Schedule.objects.filter(
+                                        id=course.pop('schedule_id')
+                                    ).values_list('finish')[0][0]
+            transactionList[i]['courses'] = courses
+    else:
+        transactionList = {'message': 'not admin'}
+    return JsonResponse(transactionList, safe=False)
+
+@csrf_exempt
+def editStatus(request):
+    data = json.loads(request.body.decode('utf-8'))
+    try:
+        Transaction.objects.filter(id=data['id']).update(status=data['status'])
+        data['message'] = 'success'
+    except IntegrityError:
+        data['message'] = "failed, id doesn't exist"
+    return JsonResponse(data)
