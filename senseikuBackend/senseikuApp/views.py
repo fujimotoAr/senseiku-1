@@ -91,6 +91,31 @@ def loginStudent(request):
     return JsonResponse(loginDict,safe=False)
 
 @csrf_exempt
+def loginAdmin(request):
+    data = json.loads(request.body.decode('utf-8'))
+    isExist = exist(data['username'], data['password'])
+    token = " "
+    if isExist:
+        user = User.objects.get(username=data['username'])
+        if user.groups.filter(name='admin').exists():
+            token = Token.objects.get_or_create(user=user)
+            message = "Login berhasil"
+        else:
+            message = "Tidak terdaftar sebagai admin"
+            isExist = False
+    else:
+        message = "Username/Password tidak terdaftar"
+    loginDict = {
+        "isAuth": isExist,
+        "username": data['username'],
+        "token": str(token[0]),
+        "message": message,
+        "currentTime": datetime.now(),
+        "role": 'admin'
+    }
+    return JsonResponse(loginDict,safe=False)
+
+@csrf_exempt
 def signupTutor(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=User.objects.filter(username=data['username']).exists()

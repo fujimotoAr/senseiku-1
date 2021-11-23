@@ -7,6 +7,7 @@ from . import views
 urlpatterns = [
     path('loginTutor/', views.loginTutor, name='loginTutor'),
     path('loginStudent/', views.loginStudent, name='loginStudent'),
+    path('loginAdmin/',views.loginAdmin,name="loginAdmin"),
     path('signupTutor/',views.signupTutor, name='signupTutor'),
     path('signupStudent/',views.signupStudent, name='signupStudent'),
     path('profileTutor/',views.profileTutor, name='profileTutor'),
@@ -39,5 +40,7 @@ urlpatterns = [
     path('tracker/',viewsProduct.tracker,name="tracker"),
     path('getWishlist/',viewsProduct.getWishlist,name="getWishlist"),
     path('addWishlist/',viewsProduct.addWishlist,name="addWishlist"),
-    path('deleteWishlist/',viewsProduct.deleteWishlist,name="deleteWishlist")
+    path('deleteWishlist/',viewsProduct.deleteWishlist,name="deleteWishlist"),
+    path('adminGetTransactions/',viewsProduct.adminGetTransactions,name="adminGetTransactions"),
+    path('editStatus/',viewsProduct.editStatus,name="editStatus")
 ]
