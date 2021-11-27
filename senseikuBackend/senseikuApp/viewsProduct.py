@@ -288,26 +288,34 @@ def getMyCart(request):
     return JsonResponse(cartList, safe=False)
 
 # delete all cart
+@csrf_exempt
 def deleteMyCart(request):
     data = request.GET.get('username')
     output={
         "message":"remove success"
     }
-    if Cart.objects.filter(student_username=data).exists():
-        Cart.objects.filter(student_username=data).delete()
+    filtered = Cart.objects.filter(student_username=data)
+    if filtered.exists():
+        for i in range(len(list(filtered))):
+            Schedule.objects.filter(id=filtered.values_list('schedule_id')[i][0]).update(availability=True)
+        filtered.delete()
         return JsonResponse(output,status=200)
     else:
         output['message']="already empty"
         return JsonResponse(output,status=404)
 
 # delete only one cart
+@csrf_exempt
 def deleteCart(request):
     data = request.GET.get('id')
     output={
         "message":"remove success"
     }
-    if Cart.objects.filter(id=data).exists():
-        Cart.objects.filter(id=data).delete()
+    filtered = Cart.objects.filter(id=data)
+    if filtered.exists():
+        Schedule.objects.filter(id=filtered.values_list('schedule_id')[0][0]) \
+                        .update(availability=True)
+        filtered.delete()
         return JsonResponse(output,status=200)
     else:
         output['message']="cart deleted"
