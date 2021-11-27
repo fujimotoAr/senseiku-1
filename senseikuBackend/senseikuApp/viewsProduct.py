@@ -32,11 +32,14 @@ def getMyCourse(request):
 
 def getMySchedule(request):
     data = request.GET.get('username')
-    scheduleList = Schedule.objects.filter(tutor_username=data)
-    scheduleData = serializers.serialize(
-        'json', scheduleList, fields=('id','tutor_username','date','hour_start','hour_finish','availability','finish')
-    )
-    return HttpResponse(scheduleData)
+    scheduleList = list(Schedule.objects.filter(tutor_username=data).values(
+        'id','tutor_username','date','hour_start','hour_finish','availability','course_id','finish'
+    ))
+    for i in range(len(scheduleList)):
+        status = list(Cart.objects.filter(schedule_id=scheduleList[i]['id']) \
+                                  .values_list('student_username__transaction__status'))
+        scheduleList[i]['status'] = None if status == [] else status[0][0]
+    return JsonResponse(scheduleList, safe=False)
 
 def getAllCourse(request):
     courseList=[*Course.objects.order_by('id'), *User.objects.order_by('course__id')]
