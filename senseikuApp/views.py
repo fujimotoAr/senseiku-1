@@ -7,8 +7,9 @@ from django.core import serializers
 from django.http import HttpResponse,JsonResponse
 from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from rest_framework.authtoken.models import Token
 from datetime import datetime
 import json
@@ -20,7 +21,8 @@ def exist(usernameInput,passwordInput):
     else:
         return False
 
-@csrf_exempt
+"""
+csrf_exempt
 def logout(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=User.objects.filter(username=data['username']).exists()
@@ -35,7 +37,7 @@ def logout(request):
     logoutDict.update({'message': message})
     return JsonResponse(logoutDict,status=404)
 
-@csrf_exempt
+csrf_exempt
 def loginTutor(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=exist(data['username'],data['password'])
@@ -114,8 +116,45 @@ def loginAdmin(request):
         "role": 'admin'
     }
     return JsonResponse(loginDict,safe=False)
+"""
 
 @csrf_exempt
+def loginUser(request):
+    #print(request.POST)
+    username=request.POST.get('username')
+    password=request.POST.get('password')
+    message=""
+    isExist=False
+    user = authenticate(request, username=username, password=password)
+    #print(user)
+    if user is not None:
+        login(request,user)
+        isExist=True
+        message="Login berhasil"
+    else:
+        message = "User tidak terdaftar"
+    print(request.user.groups)
+    current_time = datetime.now() 
+    loginDict = {
+        "isAuth":isExist,
+        "username":username,
+        "token":"", #SEMENTARA KOSONG
+        "message":message,
+        "currentTime":current_time,
+        "role":""
+    }
+    return JsonResponse(loginDict,safe=False)
+
+@csrf_exempt
+def logoutUser(request):
+    logout(request)
+    logoutDict={
+        "message":"logout"
+    }
+    return JsonResponse(logoutDict,safe=False)
+
+#TODO: mungkin bisa disatukan
+@csrf_exempt 
 def signupTutor(request):
     data=json.loads(request.body.decode('utf-8'))
     isExist=User.objects.filter(username=data['username']).exists()
@@ -134,9 +173,11 @@ def signupTutor(request):
     signupDict.update({'message': message})
     return JsonResponse(signupDict,status=200)
 
+#TODO: mungkin bisa disatukan
 @csrf_exempt
 def signupStudent(request):
     data=json.loads(request.body.decode('utf-8'))
+    print(data)
     isExist=User.objects.filter(username=data['username']).exists()
     signupDict={"username":data['username']}
     if isExist:
@@ -153,6 +194,8 @@ def signupStudent(request):
     signupDict.update({'message': message})
     return JsonResponse(signupDict,status=200)
 
+#efek jadi 404 kalau belum login, TODO: halusin errornya, cek usernya tutor bukan
+@login_required 
 def profileTutor(request):
     username = request.GET.get('username')
     #user_filter = User.objects.filter(username=username)
@@ -177,6 +220,8 @@ def profileTutor(request):
     }  
     return JsonResponse(profile_dict,status=200)
 
+#efek jadi 404 kalau belum login, TODO: halusin errornya, cek usernya student bukan
+@login_required 
 def profileStudent(request):
     username = request.GET.get('username')
     #user_filter = User.objects.filter(username=username)
@@ -201,6 +246,8 @@ def profileStudent(request):
     }  
     return JsonResponse(profile_dict,status=200)
 
+#efek jadi 404 kalau belum login, TODO: halusin errornya
+@login_required 
 @csrf_exempt
 def editProfile(request):
     data=json.loads(request.body.decode('utf-8')) #username,password, first_name, email, latitude, longitude, timestamp

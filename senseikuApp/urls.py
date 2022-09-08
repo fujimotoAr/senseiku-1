@@ -5,16 +5,16 @@ from rest_framework.authtoken.views import obtain_auth_token
 from . import views
 
 urlpatterns = [
-    path('loginTutor/', views.loginTutor, name='loginTutor'),
-    path('loginStudent/', views.loginStudent, name='loginStudent'),
-    path('loginAdmin/',views.loginAdmin,name="loginAdmin"),
+    path('login/',views.loginUser,name="login"),
+    path('logout/',views.logoutUser,name="logout"),
+
     path('signupTutor/',views.signupTutor, name='signupTutor'),
     path('signupStudent/',views.signupStudent, name='signupStudent'),
+
     path('profileTutor/',views.profileTutor, name='profileTutor'),
     path('profileStudent/',views.profileStudent, name='profileStudent'),
     path('editProfile/',views.editProfile,name='editProfile'),
-    path('logout/',views.logout,name="logout"),
-
+    
     path('newCourse/',viewsProduct.getNewCourse, name='getNewCourse'),
     path('myCourse/',viewsProduct.getMyCourse, name='getMyCourse'),
     path('allCourse/',viewsProduct.getAllCourse, name='getAllCourse'),
